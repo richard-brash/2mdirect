@@ -28,7 +28,7 @@ router.get('/', function(req, res, next) {
         smtpapi:  smtpapi,
         to      : 'richard@richardbrash.com',
         from    : 'jsimpson@2mdirect.com',
-        subject : 'Saying Hi',
+        subject : 'Saying Hi AGAIN',
         text    : '<b>This is my first email through SendGrid</b>'
     };
 
