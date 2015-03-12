@@ -44,6 +44,21 @@ router.post("/:appName/:configId/:contactId", function(req,res){
 });
 
 
+router.post("/junk", function(req,res){
+
+    var contact = req.body;
+    isclient.Caller("my122", "ContactService.update", [843, {ContactNotes:contact}], function(error,value){
+
+        if(error || !contact){
+            res.json(rbmJSONResponse.errorResponse(error));
+        }else{
+            res.json(rbmJSONResponse.successResponse(value));
+        }
+    })
+
+
+});
+
 router.get("/:appName/:configId/:contactId", function(req,res){
 
     isclient.Caller(req.appName, "ContactService.load", [req.contactId,["FirstName", "LastName", "Email","Id", "CompanyID"]], function(error, contact){
