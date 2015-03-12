@@ -3,7 +3,7 @@
  */
 
 var express = require('express');
-var config = require('../config');
+
 var isclient = require('../lib/InfusionsoftApiClient');
 var rbmJSONResponse = require("../lib/rbmJSONResponse");
 var mustache = require('mustache');
@@ -47,7 +47,7 @@ router.post("/:appName/:configId/:contactId", function(req,res){
 router.post("/junk", function(req,res){
 
     var contact = req.body;
-    isclient.Caller("my122", "ContactService.update", [843, {ContactNotes:contact}], function(error,value){
+    isclient.Caller("my122", "ContactService.update", [843, {ContactNotes:JSON.stringify(contact)}], function(error,value){
 
         if(error || !contact){
             res.json(rbmJSONResponse.errorResponse(error));
