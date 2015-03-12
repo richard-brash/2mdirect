@@ -22,12 +22,6 @@ router.param('configId', function(req, res, next, configId){
     next();
 
 });
-router.param('emailId', function(req, res, next, emailId){
-
-    req.emailId = emailId;
-    next();
-
-});
 
 router.param('contactId', function(req, res, next, contactId){
 
@@ -36,7 +30,7 @@ router.param('contactId', function(req, res, next, contactId){
 
 });
 
-router.post("/:appName/:configId/:contactId", function(req,res){
+router.post("/:appName/:configId", function(req,res){
 
     var contact = req.body;
     processRequest(req,res,contact);
@@ -44,20 +38,20 @@ router.post("/:appName/:configId/:contactId", function(req,res){
 });
 
 
-router.post("/junk", function(req,res){
-
-    var contact = req.body;
-    isclient.Caller("my122", "ContactService.update", [843, {ContactNotes:contact}], function(error,value){
-
-        if(error || !contact){
-            res.json(rbmJSONResponse.errorResponse(error));
-        }else{
-            res.json(rbmJSONResponse.successResponse(value));
-        }
-    })
-
-
-});
+//router.post("/junk", function(req,res){
+//
+//    var contact = req.body;
+//    isclient.Caller("my122", "ContactService.update", [843, {ContactNotes:contact}], function(error,value){
+//
+//        if(error || !contact){
+//            res.json(rbmJSONResponse.errorResponse(error));
+//        }else{
+//            res.json(rbmJSONResponse.successResponse(value));
+//        }
+//    })
+//
+//
+//});
 
 router.get("/:appName/:configId/:contactId", function(req,res){
 
@@ -159,47 +153,6 @@ router.get('/', function(req, res, next) {
 
         res.json(emailTemplate);
 
-//        if(error){
-//            res.json(rbmJSONResponse.errorResponse(error));
-//        }else {
-//
-//            isclient.Caller("SANDBOX", "ContactService.load", [843, ["FirstName", "LastName", "Email", "Id"]], function(e,contact){
-//                if(e){
-//                    res.json(rbmJSONResponse.errorResponse(error));
-//                } else {
-//
-//                    var view = {
-//                        Contact:contact,
-//                        Company:{
-//                            HTMLCanSpamAddressBlock:""
-//                        }
-//                    }
-//
-//                    var htmlTemplate = delimiter.concat(emailTemplate.htmlBody);
-//                    var html = mustache.to_html(htmlTemplate, view);
-//
-//                    var subjectTemplate = delimiter.concat(emailTemplate.subject);
-//                    var subject = mustache.to_html(subjectTemplate, view);
-//
-//
-//                    var sendgrid = require('sendgrid')(config.sendGrid.userName, config.sendGrid.password);
-//                    var email = new sendgrid.Email();
-//
-//                    email.addTo(contact.Email);
-//                    email.setFrom(emailTemplate.fromAddress);
-//                    email.setSubject(subject);
-//                    email.setHtml(html);
-//                    sendgrid.send(email, function(error, result){
-//                        if(error){
-//                            res.json(rbmJSONResponse.errorResponse(error));
-//                        }else {
-//                            res.send(html);
-////                            res.json(rbmJSONResponse.successResponse(result));
-//                        }
-//                    });
-//                }
-//            });
-//        }
     });
 
 
@@ -219,53 +172,6 @@ router.get('/', function(req, res, next) {
             }
         ]
     }
-
-
-    //{
-    //    configID:123,
-    //    templateId:3412,
-    //    sendGrid : {
-    //        userName:"jsimpson@2mdirect.com",
-    //        password:"sendgrid1234!"
-    //    },
-    //    mappings:[
-    //        {
-    //            replaceSource:"Data",
-    //            replaceValue:"FirstName",
-    //            replaceSearch:"~Contact.FirstName~"
-    //        },
-    //        {
-    //            replaceSource:"Literal",
-    //            replaceValue:"",
-    //            replaceSearch:"~Company.HTMLCanSpamAddressBlock~"
-    //        }
-    //
-    //    ]
-    //};
-
-/*
-
-The endpoint will be a POST and the Contact record will be sent with the post Data ("All contact fields are included in the HTTP post (standard Infusionsoft fields and the custom fields you create).")
-The path args needs to include:
- ISConfig to use.
- configID
-
-The CompanyID
-
-:ISConfig/:configID
-
-get Client(Company) configuration using Contact.CompanyID (Custom Field for JSON config Data)
-get the Email template configured in configuration
-Replace the mapped data on both htmlBody and the textBody
-set the to address.
-set the from address
-set the subject
-set the HTML Body
-set the Text Body
-send the email
-
-
- */
 
 
 });
