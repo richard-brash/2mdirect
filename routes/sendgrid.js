@@ -3,7 +3,6 @@
  */
 
 var express = require('express');
-var config = require('../config');
 var isclient = require('../lib/InfusionsoftApiClient');
 var rbmJSONResponse = require("../lib/rbmJSONResponse");
 var mustache = require('mustache');
@@ -36,22 +35,6 @@ router.post("/:appName/:configId", function(req,res){
     processRequest(req,res,contact);
 
 });
-
-
-//router.post("/junk", function(req,res){
-//
-//    var contact = req.body;
-//    isclient.Caller("my122", "ContactService.update", [843, {ContactNotes:contact}], function(error,value){
-//
-//        if(error || !contact){
-//            res.json(rbmJSONResponse.errorResponse(error));
-//        }else{
-//            res.json(rbmJSONResponse.successResponse(value));
-//        }
-//    })
-//
-//
-//});
 
 router.get("/:appName/:configId/:contactId", function(req,res){
 
