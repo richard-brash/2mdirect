@@ -34,7 +34,7 @@ router.post("/:appName/:userid", function(req,res){
     var input = req.body;
 
     //  Find the cid by email
-    isclient.Caller(reg.appName, "ContactService.findByEmail", [input.email, ["Id"]], function(error, contact){
+    isclient.Caller(req.appName, "ContactService.findByEmail", [input.email, ["Id"]], function(error, contact){
 
         if(error || !contact){
             //  do something with the error. probably just want to send a 200 through
