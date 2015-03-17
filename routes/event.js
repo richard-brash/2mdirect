@@ -31,71 +31,54 @@ router.param('userid', function(req, res, next, userid){
 
 router.post("/:appName/:userid", function(req,res){
 
-    var input = req.body;
+    var events = req.body;
 
-    //  Find the cid by email
-    isclient.Caller(req.appName, "ContactService.findByEmail", [input.email, ["Id"]], function(error, contact){
+    for (var key in events){
+        processEvent(events[key], req);
+    }
 
-        if(error || !contact){
-            //  do something with the error. probably just want to send a 200 through
-            res.send();
-        } else {
+    res.send();
+});
 
-            var creationNotes = "";
-            for(var key in input){
-                creationNotes += input[key] + ",\n";
-            }
+var processEvent = function(event, req){
 
-            var note = {
-                ContactId:contact.Id,
-                UserID:req.userid,
-                CreatedBy:req.userid,
-                CompletionDate:moment(Date.now()).format('MM/DD/YYYY'),
-                ActionDate:moment(Date.now()).format('MM/DD/YYYY'),
-                ActionDescription:"Email Event:" + input.event,
-                ActionType:input.event,
-                CreationNotes:creationNotes
-            };
+    isclient.Caller(req.appName, "ContactService.findByEmail", [event.email, ["Id","Email"]], function(error, contact){
 
-            isclient.Caller(req.appName, "DataService.add", ["ContactAction", note], function(error,data){
-                res.send();
-            });
+      if(!error && contact && contact.length >= 1){
+
+          var creationNotes = "";
+
+          for(var key in event){
+              creationNotes += key + ":" + event[key] + ",\n";
+          }
+
+          var note = {
+              ContactId:contact[0].Id,
+              UserID:req.userid,
+              CreatedBy:req.userid,
+              CompletionDate:moment(Date.now()).format('MM/DD/YYYY'),
+              ActionDate:moment(Date.now()).format('MM/DD/YYYY'),
+              ActionDescription:"Email Event:" + event.event,
+              ActionType:event.event,
+              CreationNotes:creationNotes
+          };
 
 
-        }
+          isclient.Caller(req.appName, "DataService.add", ["ContactAction", note], function(error,data){
+              if(error){
+                  console.log(error);
+              }else {
+
+              }
+          });
+
+      } else {
+          console.log(event);
+      }
 
     });
 
-
-
-
-});
-
-//  queryString url="URL TO NAVIGATE TO"
-router.get("/:appName/:cid/:userid/:clickid", function(req,res){
-
-    var queryData = url.parse(req.url, true).query;
-
-
-    var note = {
-        ContactId:req.cid,
-        UserID:req.userid,
-        CreatedBy:req.userid,
-        CompletionDate:moment(Date.now()).format('MM/DD/YYYY'),
-        ActionDate:moment(Date.now()).format('MM/DD/YYYY'),
-        ActionDescription:"ClickId:" + req.clickid,
-        ActionType:"Link clicked",
-        CreationNotes:"Contact clicked a link in email. ClickId: " + req.clickid + ". Contact was redirected to:" + queryData.url
-    };
-
-    isclient.Caller(req.appName, "DataService.add", ["ContactAction", note], function(error,data){
-
-        res.redirect(queryData.url);
-
-    });
-
-
-});
+}
 
 
 module.exports = router;
