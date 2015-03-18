@@ -59,7 +59,7 @@ var processEvent = function(event, req){
               CompletionDate:moment(Date.now()).format('MM/DD/YYYY'),
               ActionDate:moment(Date.now()).format('MM/DD/YYYY'),
               ActionDescription:"Email Event:" + event.event,
-              ActionType:event.event,
+              ActionType:"Email Event",
               CreationNotes:creationNotes
           };
 
