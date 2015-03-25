@@ -36,6 +36,18 @@ router.post("/:appName/:configId", function(req,res){
 
 });
 
+router.post("/:appName/:configId/:contactId", function(req,res){
+
+    isclient.Caller(req.appName, "ContactService.load", [req.contactId,["FirstName", "LastName", "Email","Id", "CompanyID"]], function(error, contact){
+        if(error || !contact){
+            res.json(rbmJSONResponse.errorResponse(error));
+        }else{
+            processRequest(req,res,contact);
+        }
+    });
+
+});
+
 router.get("/:appName/:configId/:contactId", function(req,res){
 
     isclient.Caller(req.appName, "ContactService.load", [req.contactId,["FirstName", "LastName", "Email","Id", "CompanyID"]], function(error, contact){
