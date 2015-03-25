@@ -46,32 +46,32 @@ var processEvent = function(event, req){
 
       if(!error && contact && contact.length >= 1){
 
-          var creationNotes = "";
-
-          for(var key in event){
-              creationNotes += key + ":" + event[key] + ",\n";
-          }
-
-          var note = {
-              ContactId:contact[0].Id,
-              UserID:req.userid,
-              CreatedBy:req.userid,
-              CompletionDate:moment(Date.now()).format('MM/DD/YYYY'),
-              ActionDate:moment(Date.now()).format('MM/DD/YYYY'),
-              ActionDescription:"Email Event:" + event.event,
-              ActionType:"Email Event",
-              CreationNotes:creationNotes
-          };
-
-
-          //  Add note to record details
-          isclient.Caller(req.appName, "DataService.add", ["ContactAction", note], function(error,data){
-              if(error){
-                  console.log(error);
-              }else {
-
-              }
-          });
+          //var creationNotes = "";
+          //
+          //for(var key in event){
+          //    creationNotes += key + ":" + event[key] + ",\n";
+          //}
+          //
+          //var note = {
+          //    ContactId:contact[0].Id,
+          //    UserID:req.userid,
+          //    CreatedBy:req.userid,
+          //    CompletionDate:moment(Date.now()).format('MM/DD/YYYY'),
+          //    ActionDate:moment(Date.now()).format('MM/DD/YYYY'),
+          //    ActionDescription:"Email Event:" + event.event,
+          //    ActionType:"Email Event",
+          //    CreationNotes:creationNotes
+          //};
+          //
+          //
+          ////  Add note to record details
+          //isclient.Caller(req.appName, "DataService.add", ["ContactAction", note], function(error,data){
+          //    if(error){
+          //        console.log(error);
+          //    }else {
+          //
+          //    }
+          //});
 
           //  API Call to update scoring
           if(apiCall != ""){
