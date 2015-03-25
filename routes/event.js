@@ -64,6 +64,7 @@ var processEvent = function(event, req){
           };
 
 
+          //  Add note to record details
           isclient.Caller(req.appName, "DataService.add", ["ContactAction", note], function(error,data){
               if(error){
                   console.log(error);
@@ -71,6 +72,18 @@ var processEvent = function(event, req){
 
               }
           });
+
+          //  API Call to update scoring
+          if(apiCall != ""){
+              isclient.Caller(req.appName, ["SendGridEmailHook", event.event, contact[0].Id], function(error, apiresult){
+                  if(error){
+                      console.log(error);
+                  }else {
+                      console.log(apiresult);
+                  }
+              })
+          };
+
 
       } else {
           console.log(event);
