@@ -112,6 +112,8 @@ var processRequest = function(req, res, contact){
                     email.setSubject(subject);
                     email.setHtml(htmlBody);
                     email.setText(textBody);
+
+
                     sendgrid.send(email, function(error, result){
                         if(error){
                             res.json(rbmJSONResponse.errorResponse(error));
