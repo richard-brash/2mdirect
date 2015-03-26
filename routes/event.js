@@ -6,43 +6,33 @@
 
 var express = require('express');
 var isclient = require('../lib/InfusionsoftApiClient');
-var url = require('url');
 var moment = require('moment');
 
-var rbmJSONResponse = require("../lib/rbmJSONResponse");
+var Config = require('../config');
+
 
 var router = express.Router();
 
-router.param('appName', function(req, res, next, appName){
-
-    req.appName = appName;
-    next();
-
-});
-
-router.param('userid', function(req, res, next, userid){
-
-    req.userid = userid;
-    next();
-
-});
-
-
-
-router.post("/:appName/:userid", function(req,res){
+router.post("/", function(req,res){
 
     var events = req.body;
 
     for (var key in events){
-        processEvent(events[key], req);
+
+        for(var configKey in Config.infusionsoftConfigs){
+
+            var config = Config.infusionsoftConfigs[configKey];
+            processEvent(events[key], config);
+        }
+
     }
 
     res.send();
 });
 
-var processEvent = function(event, req){
+var processEvent = function(event, config){
 
-    isclient.Caller(req.appName, "ContactService.findByEmail", [event.email, ["Id","Email"]], function(error, contact){
+    isclient.Caller(config.AppName, "ContactService.findByEmail", [event.email, ["Id","Email"]], function(error, contact){
 
       if(!error && contact && contact.length >= 1){
 
@@ -54,8 +44,8 @@ var processEvent = function(event, req){
 
           var note = {
               ContactId:contact[0].Id,
-              UserID:req.userid,
-              CreatedBy:req.userid,
+              UserID:config.UserId,
+              CreatedBy:config.UserId,
               CompletionDate:moment(Date.now()).format('MM/DD/YYYY'),
               ActionDate:moment(Date.now()).format('MM/DD/YYYY'),
               ActionDescription:"Email Event:" + event.event,
@@ -65,7 +55,7 @@ var processEvent = function(event, req){
 
 
           //  Add note to record details
-          isclient.Caller(req.appName, "DataService.add", ["ContactAction", note], function(error,data){
+          isclient.Caller(config.AppName, "DataService.add", ["ContactAction", note], function(error,data){
               if(error){
                   console.log(error);
               }else {
@@ -74,15 +64,13 @@ var processEvent = function(event, req){
           });
 
           //  API Call to update scoring
-          if(apiCall != ""){
-              isclient.Caller(req.appName, ["SendGridEmailHook", event.event, contact[0].Id], function(error, apiresult){
-                  if(error){
-                      console.log(error);
-                  }else {
-                      console.log(apiresult);
-                  }
-              })
-          };
+          isclient.Caller(config.AppName, "FunnelService.achieveGoal", ["SendGridEmailHook", event.event, contact[0].Id], function(error, apiresult){
+              if(error){
+                  console.log(error);
+              }else {
+                  console.log(apiresult);
+              }
+          })
 
 
       } else {
