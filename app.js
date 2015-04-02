@@ -9,6 +9,7 @@ var routes = require('./routes/index');
 var sendgrid = require('./routes/sendgrid');
 var registerclick = require('./routes/registerclick');
 var event = require('./routes/event');
+var unsubscribe = require('./routes/unsubscribe');
 
 var app = express();
 
@@ -28,6 +29,7 @@ app.use('/', routes);
 app.use('/sendgrid', sendgrid);
 app.use('/registerclick', registerclick);
 app.use('/event', event);
+app.use('/unsubscribe', unsubscribe);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
