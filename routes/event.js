@@ -42,26 +42,26 @@ var processEvent = function(event, config){
               creationNotes += key + ":" + event[key] + ",\n";
           }
 
-          var note = {
-              ContactId:contact[0].Id,
-              UserID:config.UserId,
-              CreatedBy:config.UserId,
-              CompletionDate:moment(Date.now()).format('MM/DD/YYYY'),
-              ActionDate:moment(Date.now()).format('MM/DD/YYYY'),
-              ActionDescription:"Email Event:" + event.event,
-              ActionType:"Email Event",
-              CreationNotes:creationNotes
-          };
-
-
-          //  Add note to record details
-          isclient.Caller(config.AppName, "DataService.add", ["ContactAction", note], function(error,data){
-              if(error){
-                  console.log(error);
-              }else {
-
-              }
-          });
+          //var note = {
+          //    ContactId:contact[0].Id,
+          //    UserID:config.UserId,
+          //    CreatedBy:config.UserId,
+          //    CompletionDate:moment(Date.now()).format('MM/DD/YYYY'),
+          //    ActionDate:moment(Date.now()).format('MM/DD/YYYY'),
+          //    ActionDescription:"Email Event:" + event.event,
+          //    ActionType:"Email Event",
+          //    CreationNotes:creationNotes
+          //};
+          //
+          //
+          ////  Add note to record details
+          //isclient.Caller(config.AppName, "DataService.add", ["ContactAction", note], function(error,data){
+          //    if(error){
+          //        console.log(error);
+          //    }else {
+          //
+          //    }
+          //});
 
           //  API Call to update scoring
           isclient.Caller(config.AppName, "FunnelService.achieveGoal", ["SendGridEmailHook", event.event, contact[0].Id], function(error, apiresult){
