@@ -34,19 +34,29 @@ function Config(){
             name:"M2Direct",
             AppName:"et230",
             ApiKey:"c17788ab5cf2ae112e9da759b50f57f9",
-            UserId:1
+            UserId:1,
+            Dashboard:169
         },
         {
             name:"AEG",
             AppName:"je230",
             ApiKey:"78fe52c4c1c84254d80bebcaa45a5c4d",
-            UserId:1
+            UserId:1,
+            Dashboard:123
         },
         {
             name:"Whittaker",
             AppName:"yo230",
             ApiKey:"4f09decba23592b843ae64feb2b8ebf1",
-            UserId:1
+            UserId:1,
+            Dashboard:123
+        },
+        {
+            name:"2MDirect",
+            AppName:"cd236",
+            ApiKey:"bb8900ef30e3d7ffd0ff0e133cf108c56b9b4c9c45cbc3919a6bb08fb44f9022",
+            UserId:1,
+            Dashboard:123
         }
     ];
 

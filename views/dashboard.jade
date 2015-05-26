@@ -1,0 +1,32 @@
+//
+   Created by richardbrash on 5/20/15.
+extends layout
+
+block content
+
+div
+    table
+        thead
+            tr.head
+                th Job Title
+                th Company Name
+                th Phone
+                th Email
+                th Website
+                th Number of Employees
+                th Annual Revenue
+                th Score (Legacy)
+                th Last Updated
+
+        tbody
+            each result, i in results
+                tr
+                    td #{result.JobTitle}
+                    td #{result.Custom_CompanyName}
+                    td #{result.PhoneWithExtension1}
+                    td #{result.Email}
+                    td #{result.Website}
+                    td #{result.Custom_NumberofEmployees}
+                    td #{result.Custom_AnnualRevenue0}
+                    td #{result.Custom_ScoreLegacy}
+                    td #{result.LastUpdated}
