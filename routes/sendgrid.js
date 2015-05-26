@@ -29,6 +29,14 @@ router.param('contactId', function(req, res, next, contactId){
 
 });
 
+router.param('companyId', function(req, res, next, companyId){
+
+    req.companyId = companyId;
+    next();
+
+});
+
+
 router.post("/:appName/:configId", function(req,res){
 
     var contact = req.body;
@@ -36,12 +44,26 @@ router.post("/:appName/:configId", function(req,res){
 
 });
 
+
 router.post("/:appName/:configId/:contactId", function(req,res){
 
     isclient.Caller(req.appName, "ContactService.load", [req.contactId,["FirstName", "LastName", "Email","Id", "CompanyID"]], function(error, contact){
         if(error || !contact){
             res.json(rbmJSONResponse.errorResponse(error));
         }else{
+            processRequest(req,res,contact);
+        }
+    });
+
+});
+
+router.post("/:appName/:configId/:companyId/:contactId", function(req,res){
+
+    isclient.Caller(req.appName, "ContactService.load", [req.contactId,["FirstName", "LastName", "Email","Id"]], function(error, contact){
+        if(error || !contact){
+            res.json(rbmJSONResponse.errorResponse(error));
+        }else{
+            contact.CompanyID = req.companyId;
             processRequest(req,res,contact);
         }
     });
