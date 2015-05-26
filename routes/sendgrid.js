@@ -70,6 +70,19 @@ router.post("/:appName/:configId/:companyId/:contactId", function(req,res){
 
 });
 
+router.get("/:appName/:configId/:companyId/:contactId", function(req,res){
+
+    isclient.Caller(req.appName, "ContactService.load", [req.contactId,["FirstName", "LastName", "Email","Id"]], function(error, contact){
+        if(error || !contact){
+            res.json(rbmJSONResponse.errorResponse(error));
+        }else{
+            contact.CompanyID = req.companyId;
+            processRequest(req,res,contact);
+        }
+    });
+
+});
+
 router.get("/:appName/:configId/:contactId", function(req,res){
 
     isclient.Caller(req.appName, "ContactService.load", [req.contactId,["FirstName", "LastName", "Email","Id", "CompanyID"]], function(error, contact){
