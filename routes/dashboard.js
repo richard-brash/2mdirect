@@ -39,6 +39,18 @@ router.param('page', function(req, res, next, page){
 
 });
 
+
+router.get("/", function(req,res){
+
+    var response = {
+        success: true,
+        data: 'You are running NodeJS, this is the Dashboard endpoint. I HAVE UDAPTED THE CODE.',
+        error: null
+    };
+    res.render('dashboard', { title: response.data, error: response.error });
+
+})
+
 /*
 
 The route needs to have the contactID and the reportID the page number requested
@@ -47,7 +59,6 @@ The route needs to have the contactID and the reportID the page number requested
 
  */
 
-//  queryString url="URL TO NAVIGATE TO"
 router.get("/:appName/:cid/:configId/:page", function(req,res){
 
     //  Get the contact
@@ -80,6 +91,7 @@ router.get("/:appName/:cid/:configId/:page", function(req,res){
                             res.json(rbmJSONResponse.errorResponse(error));
                         }else {
                             res.render("dashboard",{results:reportData});
+
                             //res.json(rbmJSONResponse.successResponse(reportData));
                         }
                     });
