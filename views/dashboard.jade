@@ -1,32 +1,33 @@
-//
-   Created by richardbrash on 5/20/15.
+
 extends layout
 
 block content
+    div.container(data-bind="foreach:pagedRows")
+        div.dataRow
+            div.row
+                div.col-xs-6
+                    label Company:
+                    span(data-bind="text:Custom_CompanyName")
+                div.col-xs-3
+                    label Phone:
+                    span(data-bind="text:PhoneWithExtension1")
+                div.col-xs-3
+                    label Score:
+                    span(data-bind="text:Custom_ScoreLegacy")
+            div.row
+                div.col-xs-6
+                    label Email:
+                    span(data-bind="text:Email")
+                div.col-xs-3
+                    label Annual Revenue:
+                    span(data-bind="text:Custom_AnnualRevenue0")
+                div.col-xs-3
+                    label Number Of Employees:
+                    span(data-bind="text:Custom_NumberofEmployees")
+    div.container
+        div.row
+            div.col-xs-10 &nbsp;
+            div.col-xs-1 <a href="#" data-bind="click: previousPage, visible: pageIndex() > 0">Previous</a>
+            div.col-xs-1 <a href="#" data-bind="click: nextPage, visible: pageIndex() < maxPageIndex()">Next</a>
 
-div
-    table
-        thead
-            tr.head
-                th Job Title
-                th Company Name
-                th Phone
-                th Email
-                th Website
-                th Number of Employees
-                th Annual Revenue
-                th Score (Legacy)
-                th Last Updated
 
-        tbody
-            each result, i in results
-                tr
-                    td #{result.JobTitle}
-                    td #{result.Custom_CompanyName}
-                    td #{result.PhoneWithExtension1}
-                    td #{result.Email}
-                    td #{result.Website}
-                    td #{result.Custom_NumberofEmployees}
-                    td #{result.Custom_AnnualRevenue0}
-                    td #{result.Custom_ScoreLegacy}
-                    td #{result.LastUpdated}
