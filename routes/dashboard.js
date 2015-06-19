@@ -32,13 +32,30 @@ router.param('configId', function(req, res, next, configId){
 
 });
 
-router.param('page', function(req, res, next, page){
+router.param('savedsearchid', function(req, res, next, savedsearchid){
 
-    req.page = parseInt(page);
+    req.savedsearchid = parseInt(savedsearchid);
     next();
 
 });
 
+
+router.use(function (req, res, next) {
+    var context = req.body;
+
+    isclient.Caller(context.appname, "ContactService.load", [context.cid,["FirstName", "LastName", "Email","Id", "CompanyID"]], function(error, contact){
+
+        if(error){
+            res.json(rbmJSONResponse.errorResponse(error));
+        } else {
+            req.user = contact;
+        }
+
+        next();
+    });
+
+
+});
 
 router.get("/", function(req,res){
 
@@ -57,7 +74,218 @@ The route needs to have the contactID and the reportID the page number requested
   The process will look up the companyID based on the ContactId
   Pull in the companyConfig and then parse out the savedReportId for the report ID.  This will work similarly to how we do email templates
 
+Routes...
+
+Pull the initial page and page artifacts with User Context
+Pull the Saved Search Data (1000) records
+Get 1 records based on Name
+Get all the notes
+
  */
+
+
+// Get page and artifacts
+router.get("/:appName/:cid/:configId", function(req,res){
+
+    isclient.Caller(req.appName, "ContactService.load", [req.cid,["CompanyID"]], function(error, contact){
+
+        if(error || !contact){
+            res.json(rbmJSONResponse.errorResponse(error));
+        }else {
+
+            // Get the companyConfig
+            isclient.Caller(req.appName, "DataService.load", ["Company", contact.CompanyID, ["_SendGridConfig"]], function(error, company) {
+                if (error || !company) {
+                    res.json(rbmJSONResponse.errorResponse(error));
+                } else {
+                    var companyConfig = JSON.parse(company._SendGridConfig.replace(/&quot;/g, '"'));
+                    var savedSearchID = 0;
+                    var userID = 0;
+
+                    for (var key in companyConfig.reportConfigs) {
+                        if (companyConfig.reportConfigs[key].configId == req.configId) {
+                            savedSearchID = companyConfig.reportConfigs[key].savedSearchID;
+                            userID = companyConfig.reportConfigs[key].userID;
+                        }
+                    }
+                }
+
+                var dataContext = {
+                    appName: req.appName,
+                    CompanyID: contact.CompanyID,
+                    savedSearchID : savedSearchID,
+                    userID : userID
+                }
+
+                //res.json({context:dataContext});
+                res.render("dashboard",{context:dataContext});
+            })
+        }
+
+    });
+
+})
+
+
+router.post("/notes", function(req,res){
+
+    var context = req.body;
+
+    var query = {
+        ContactId : parseInt(context.cid)
+    };
+
+    isclient.Caller(context.appname, "DataService.query", ["ContactAction", 1000,0, query,
+        [
+            "Id",
+            "CreationDate",
+            "CreationNotes",
+            "ActionDescription"
+        ]
+    ],function(error, data){
+
+        if(error){
+            res.json(rbmJSONResponse.errorResponse(error));
+        } else {
+            res.json(rbmJSONResponse.successResponse(data));
+        }
+
+    });
+
+
+});
+
+router.post("/search", function(req,res){
+
+    var context = req.body;
+
+    var filters = JSON.parse(context.filters);
+    var query = {};
+
+    for(var index in filters){
+        query[filters[index].field] = filters[index].value + "%";
+    }
+
+    query["CompanyID"] = req.user.CompanyID;
+
+    isclient.Caller(context.appname, "DataService.query", ["Contact", parseInt(context.take),parseInt(context.skip-1), query,
+        [
+            "Id",
+            "Company",
+            "FirstName",
+            "LastName",
+            "Email",
+            "JobTitle",
+            "Phone1",
+            "Website",
+            "LastUpdated",
+            "StreetAddress1",
+            "StreetAddress2",
+            "City",
+            "State",
+            "PostalCode",
+            "_CompanyName",
+            "_EntityType",
+            "_ParentName",
+            "_UltimateParentName",
+            "_NumberofEmployees",
+            "_AnnualRevenue0",
+            "_YearEstablished",
+            "_CompanyDescription",
+            "_ScoreLegacy"
+        ]
+    ],function(error, data){
+
+        if(error){
+            res.json(rbmJSONResponse.errorResponse(error));
+        } else {
+            res.json(rbmJSONResponse.successResponse(data));
+        }
+
+    });
+
+});
+
+
+router.post("/savedsearch", function(req,res){
+
+    var context = req.body;
+
+    // Get the companyConfig
+    isclient.Caller(context.appname, "DataService.load", ["Company", req.user.CompanyID, ["_SendGridConfig"]], function(error, company){
+        if(error || !company){
+            res.json(rbmJSONResponse.errorResponse(error));
+        }else{
+            var companyConfig = JSON.parse(company._SendGridConfig.replace(/&quot;/g,'"'));
+            var savedSearchID = 0;
+            var userID = 0;
+
+            for(var key in companyConfig.reportConfigs){
+                if(companyConfig.reportConfigs[key].configId == context.configid){
+                    savedSearchID = companyConfig.reportConfigs[key].savedSearchID;
+                    userID = companyConfig.reportConfigs[key].userID;
+                }
+            }
+
+            //  This is where we will get the data
+            isclient.Caller(context.appname, "SearchService.getSavedSearchResultsAllFields", [parseInt(savedSearchID), parseInt(userID), 0], function(error, reportData){
+
+                if(error || !reportData){
+                    res.json(rbmJSONResponse.errorResponse(error));
+                }else {
+
+                    var results = [];
+
+                    for(var i = 0; i < reportData.length; i++){
+
+                        results.push({
+                            Id: reportData[i].Id,
+                            Company : reportData[i].Company,
+                            FirstName : reportData[i]['ContactName.firstName'],
+                            LastName : reportData[i]['ContactName.lastName'],
+                            Email : reportData[i].Email,
+                            JobTitle : reportData[i].JobTitle,
+                            Phone1 : reportData[i].PhoneWithExtension1,
+                            Website : reportData[i].Website,
+                            LastUpdated : reportData[i].LastUpdated,
+                            StreetAddress1 : reportData[i].StreetAddress1,
+                            StreetAddress2 : reportData[i].StreetAddress2,
+                            City : reportData[i].City,
+                            State : reportData[i].State,
+                            PostalCode : reportData[i].PostalCodePlusZipFour1,
+                            _CompanyName : reportData[i].Custom_CompanyName,
+                            _EntityType : reportData[i]. Custom_EntityType,
+                            _ParentName : reportData[i].Custom_ParentName,
+                            _UltimateParentName : reportData[i].Custom_UltimateParentName,
+                            _NumberofEmployees : reportData[i].Custom_NumberofEmployees,
+                            _AnnualRevenue0 : reportData[i].Custom_AnnualRevenue0,
+                            _YearEstablished : reportData[i].Custom_YearEstablished,
+                            _CompanyDescription : reportData[i].CompanyInfo,
+                            _ScoreLegacy : reportData[i].ScoreId1
+                        });
+
+                        if(i > 100){
+                            i = reportData.length;
+                        }
+
+
+
+                    }
+
+                    res.json(rbmJSONResponse.successResponse(results));
+
+
+                }
+            });
+
+
+
+        }
+
+    });
+
+
+});
 
 router.get("/:appName/:cid/:configId/:page", function(req,res){
 
@@ -90,9 +318,9 @@ router.get("/:appName/:cid/:configId/:page", function(req,res){
                         if(error || !reportData){
                             res.json(rbmJSONResponse.errorResponse(error));
                         }else {
-                            res.render("dashboard",{results:reportData});
+                            //res.render("dashboard",{results:reportData});
 
-                            //res.json(rbmJSONResponse.successResponse(reportData));
+                            res.json(reportData);
                         }
                     });
 

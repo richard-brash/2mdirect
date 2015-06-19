@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="stylesheets/bootstrap.min.css"/>
+    <link rel="stylesheet" href="stylesheets/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="stylesheets/toastr.min.css"/>
+    <link rel="stylesheet" href="stylesheets/style.css"/>
+
+</head>
+<body>
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="input-group">
+                    <span class="input-group-addon glyphicon glyphicon-search" aria-hidden="true"></span>
+                    <input type="text" class="form-control" placeholder="Search for..." aria-describedby="basic-addon1" data-bind="value:filterText, valueUpdate:'keypress'">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Search By <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a data-bind="click:getContacts">Contact</a></li>
+                            <li><a data-bind="click:getCompanies">Company</a></li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12"><hr /></div>
+        </div>
+
+
+        <ul class="pager"  data-bind="visible: $data.contacts().length > 0 && !initialLoad()">
+            <li class="previous" data-bind="css:{'disabled':$data.currentPage()<=1}"><a href="#" data-bind="click: movePrevious"><i class="glyphicon glyphicon-step-backward icon-left"></i>Previous Page</a></li>
+            <li class="next" data-bind="css:{'disabled':$data.contacts().length < $data.itemsToGet()}"><a href="#" data-bind="click: moveNext">Next Page <i class="glyphicon glyphicon-step-forward icon-right"></i></a></li>
+        </ul>
+        <br/>
+
+        <div data-bind="foreach:contacts">
+            <div class="prospect">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <span class="nameheader" data-bind="text: fullName"/>
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div><label>Job Title:</label> <span data-bind="text:JobTitle"></span></div>
+                        <div><label>Company Name:</label> <span data-bind="text:_CompanyName"></span></div>
+                        <div><label>Email:</label> <span data-bind="text:Email"></span></div>
+                        <div><label>Phone:</label> <span data-bind="text:Phone1"></span></div>
+                        <div><label>Number of Employees:</label> <span data-bind="text:_NumberofEmployees"></span></div>
+                        <div><label>Annual Revenue:</label> <span data-bind="money:_AnnualRevenue0"></span></div>
+                    </div>
+                    <div class="col-sm-5">
+                        <div><label>Website:</label> <span data-bind="text:Website"></span></div>
+                        <div><label>Street Address:</label> <span data-bind="text:StreetAddress1"></span></div>
+                        <div><label>City:</label> <span data-bind="text:City"></span></div>
+                        <div><label>State:</label> <span data-bind="text:State"></span></div>
+                        <div><label>Postal Code:</label> <span data-bind="text:PostalCode"></span></div>
+                        <div><label>Last Updated:</label> <span data-bind="text:moment(LastUpdated()).format('dddd, MMMM Do YYYY, h:mm:ss a')"></span></div>
+                    </div>
+                    <div class="col-sm-3">
+                        <br/>
+                        <div>
+                            <button class="btn btn-lg bg-primary" data-toggle="modal" data-bind="click:$parent.getNotes" data-target="#companyNotes">View Notes</button>
+                        </div>
+                        <br/>
+                        <div>
+                            <button class="btn btn-lg bg-primary" data-bind="click:$parent.selectProspect" data-toggle="modal" data-target="#companyDetails">Company Details</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Notes -->
+    <div class="modal fade" id="companyNotes" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <span class="modal-title nameheader" data-bind="text: 'Company Notes'"/>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div data-bind="visible: notes().length > 0">
+                            <div data-bind="foreach:notes">
+                                <div class="note">
+                                    <div class="row">
+                                        <div class="col-sm-2">
+                                            <div><label>Date:</label> <span data-bind="text:moment(CreationDate()).format('L')"></span></div>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <div><label>Description:</label> <span data-bind="text:ActionDescription"></span></div>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <div data-bind="visible: CreationNotes()">
+                                                <button type="button" data-bind="click:toggleMe" class="btn btn-default" aria-haspopup="true" aria-expanded="false">__<span class="caret"></span></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" data-bind="visible: showMe">
+                                        <div class="col-sm-6 noteDetail" data-bind="text: CreationNotes"></div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div data-bind="visible: notes().length < 1">
+                            <span data-bind="text: notesLoadMessage"></span>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Detail -->
+    <div class="modal fade" id="companyDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" data-bind="with:selectedProspect">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                    <span class="modal-title nameheader" data-bind="text: _CompanyName"/>
+
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <div><label>Entity Type:</label> <span data-bind="text:_EntityType"></span></div>
+                                <div><label>Parent Name:</label> <span data-bind="text:_ParentName"></span></div>
+                                <div><label>Ultimate Parent Name:</label> <span data-bind="text:_UltimateParentName"></span></div>
+                                <div><label>Number of Employees:</label> <span data-bind="text:_NumberofEmployees"></span></div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div><label>Annual Revenue:</label> <span data-bind="money:_AnnualRevenue0"></span></div>
+                                <div><label>Year Established:</label> <span data-bind="text:_YearEstablished"></span></div>
+                                <div><label>Company Description:</label> <span data-bind="text:_CompanyDescription"></span></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<script src="javascripts/jquery-2.1.4.min.js"></script>
+<script src="javascripts/bootstrap.min.js"></script>
+<script src="javascripts/knockout-3.3.0.js"></script>
+<script src="javascripts/moment.js"></script>
+<script src="javascripts/toastr.min.js"></script>
+<script src="javascripts/main.js"></script>
+</body>
+
+</html>

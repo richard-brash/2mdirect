@@ -2,16 +2,16 @@ doctype html
 html
   head
     title= title
-    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css')
-    link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css')
+    link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
+    link(rel='stylesheet', href='/stylesheets/bootstrap-theme.min.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
     block content
 
     script(src="/javascripts/jquery-2.1.4.min.js")
-    script(src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js")
+    script(src="/javascripts/bootstrap.min.js")
     script(src="/javascripts/knockout-3.3.0.js")
 
     script(type='text/javascript').
-        var data = !{JSON.stringify(results)};
+        var context = !{JSON.stringify(context)};
     script(src="/javascripts/main.js")
