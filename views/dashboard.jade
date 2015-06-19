@@ -2,32 +2,13 @@
 extends layout
 
 block content
-    div.container(data-bind="foreach:pagedRows")
-        div.dataRow
-            div.row
-                div.col-xs-6
-                    label Company:
-                    span(data-bind="text:Custom_CompanyName")
-                div.col-xs-3
-                    label Phone:
-                    span(data-bind="text:PhoneWithExtension1")
-                div.col-xs-3
-                    label Score:
-                    span(data-bind="text:Custom_ScoreLegacy")
-            div.row
-                div.col-xs-6
-                    label Email:
-                    span(data-bind="text:Email")
-                div.col-xs-3
-                    label Annual Revenue:
-                    span(data-bind="text:Custom_AnnualRevenue0")
-                div.col-xs-3
-                    label Number Of Employees:
-                    span(data-bind="text:Custom_NumberofEmployees")
+
+
     div.container
         div.row
-            div.col-xs-10 &nbsp;
-            div.col-xs-1 <a href="#" data-bind="click: previousPage, visible: pageIndex() > 0">Previous</a>
-            div.col-xs-1 <a href="#" data-bind="click: nextPage, visible: pageIndex() < maxPageIndex()">Next</a>
-
-
+            div.col-xs-6
+                form.form-search
+                    div.input-append
+                        input(type="text", data-bind="value: filterText, event:{change: resetPage", placeholder="Search").col-xs-5.input-medium.search-query
+                        button(type="submit", aria-label="Left Align", data-bind="click:getContacts").btn.btn-primary
+                            span(aria-hidden="true").icon-search.icon-left Search
