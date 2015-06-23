@@ -48,3 +48,7 @@ span.nameheader {
 .container div.dataRow:nth-child(2n+1){
     background-color: #bbbbbb;
 }
+
+.modal-dialog {
+    width: 90%;
+}

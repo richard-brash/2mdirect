@@ -78,7 +78,7 @@ function Prospect(data){
     self.City = ko.observable(data.City);
     self.State = ko.observable(data.State);
     self.PostalCode = ko.observable(data.PostalCode);
-
+    self.Leadsource = ko.observable(data.Leadsource);
     self._CompanyName = ko.observable(data._CompanyName);
     self._EntityType = ko.observable(data._EntityType);
     self._ParentName = ko.observable(data._ParentName);
@@ -87,11 +87,45 @@ function Prospect(data){
     self._AnnualRevenue0 = ko.observable(data._AnnualRevenue0);
     self._YearEstablished = ko.observable(data._YearEstablished);
     self._CompanyDescription = ko.observable(data._CompanyDescription);
-    self._ScoreLegacy = ko.observable(data._ScoreLegacy);
+    self._CompanyDescription = ko.observable(data._CompanyDescription);
+    self.Score = ko.observable(data.Score);
+    self.LinkedIn = ko.observable(data.LinkedIn);
+    self._IndustryGroupName = ko.observable(data._IndustryGroupName);
+    self._NAICS = ko.observable(data._NAICS);
+
 
     self.fullName = ko.computed(function() {
         return self.FirstName() + " " + self.LastName();
     });
+
+    self.flame = ko.computed(function(){
+
+        var score = Math.round((self.Score() * 100)/20);
+
+        if(score > 5){score = 5}
+
+        switch (score){
+            case 1:
+                return "/images/" +"OneFlame.png";
+                break;
+            case 2:
+                return "/images/" +"TwoFlame.png";
+                break;
+            case 3:
+                return "/images/" +"ThreeFlame.png";
+                break;
+            case 4:
+                return "/images/" +"FourFlame.png";
+                break;
+            case 5:
+                return "/images/" +"FiveFlame.png";
+                break;
+            default:
+                return "/images/" +"ZeroFlame.png";
+                break;
+        }
+
+    })
 }
 
 function AppViewModel(context){
@@ -198,6 +232,7 @@ function AppViewModel(context){
                 if (response.success) {
 
                     var mapped = $.map(response.data, function(item) {
+
                         return new Prospect(item);
                     });
                     self.contacts(mapped);

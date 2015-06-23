@@ -184,6 +184,7 @@ router.post("/search", function(req,res){
             "City",
             "State",
             "PostalCode",
+            "Leadsource",
             "_CompanyName",
             "_EntityType",
             "_ParentName",
@@ -192,8 +193,10 @@ router.post("/search", function(req,res){
             "_AnnualRevenue0",
             "_YearEstablished",
             "_CompanyDescription",
-            "_ScoreLegacy"
-        ]
+            "_NAICS",
+            "_IndustryGroupName"
+
+    ]
     ],function(error, data){
 
         if(error){
@@ -237,6 +240,7 @@ router.post("/savedsearch", function(req,res){
                     var results = [];
 
                     for(var i = 0; i < reportData.length; i++){
+                        console.log(reportData[i]);
 
                         results.push({
                             Id: reportData[i].Id,
@@ -253,6 +257,7 @@ router.post("/savedsearch", function(req,res){
                             City : reportData[i].City,
                             State : reportData[i].State,
                             PostalCode : reportData[i].PostalCodePlusZipFour1,
+                            Leadsource : reportData[i].Leadsource,
                             _CompanyName : reportData[i].Custom_CompanyName,
                             _EntityType : reportData[i]. Custom_EntityType,
                             _ParentName : reportData[i].Custom_ParentName,
@@ -261,7 +266,10 @@ router.post("/savedsearch", function(req,res){
                             _AnnualRevenue0 : reportData[i].Custom_AnnualRevenue0,
                             _YearEstablished : reportData[i].Custom_YearEstablished,
                             _CompanyDescription : reportData[i].CompanyInfo,
-                            _ScoreLegacy : reportData[i].ScoreId1
+                            Score : reportData[i].ScoreId1,
+                            LinkedIn: reportData[i].LinkedInSocialAccountName,
+                            _NAICS : reportData[i].Custom_NAICS,
+                            _IndustryGroupName : reportData[i].Custom_IndustryGroupName
                         });
 
                         if(i > 100){
@@ -274,17 +282,10 @@ router.post("/savedsearch", function(req,res){
 
                     res.json(rbmJSONResponse.successResponse(results));
 
-
                 }
             });
-
-
-
         }
-
     });
-
-
 });
 
 router.get("/:appName/:cid/:configId/:page", function(req,res){
