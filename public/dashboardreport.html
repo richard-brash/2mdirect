@@ -39,6 +39,10 @@
         </ul>
         <br/>
 
+        <div data-bind="visible: $data.contacts().length < 1 && initialLoad()">
+            Loading data...
+        </div>
+
         <div data-bind="foreach:contacts">
             <div class="prospect">
                 <div class="row">
@@ -79,52 +83,6 @@
         </div>
     </div>
 
-    <!-- Company Notes -->
-    <div class="modal fade" id="companyNotes" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <span class="modal-title nameheader" data-bind="text: 'Company Notes'"/>
-                </div>
-                <div class="modal-body">
-                    <div class="container">
-                        <div data-bind="visible: notes().length > 0">
-                            <div data-bind="foreach:notes">
-                                <div class="note">
-                                    <div class="row">
-                                        <div class="col-sm-2">
-                                            <div><label>Date:</label> <span data-bind="text:moment(CreationDate()).format('L')"></span></div>
-                                        </div>
-                                        <div class="col-sm-4">
-                                            <div><label>Description:</label> <span data-bind="text:ActionDescription"></span></div>
-                                        </div>
-                                        <div class="col-sm-2">
-                                            <div data-bind="visible: CreationNotes()">
-                                                <button type="button" data-bind="click:toggleMe" class="btn btn-default" aria-haspopup="true" aria-expanded="false">__<span class="caret"></span></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row" data-bind="visible: showMe">
-                                        <div class="col-sm-6 noteDetail" data-bind="text: CreationNotes"></div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                        <div data-bind="visible: notes().length < 1">
-                            <span data-bind="text: notesLoadMessage"></span>
-                        </div>
-
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Company Detail -->
     <div class="modal fade" id="companyDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
@@ -149,12 +107,37 @@
                                 <div><label>Industry Group Name:</label> <span data-bind="text:_IndustryGroupName"></span></div>
                                 <div><label>Company Description:</label> <span data-bind="text:_CompanyDescription"></span></div>
                             </div>
-
                         </div>
+                    </div>
+                    <hr/>
+                    <div class="container" data-bind="with: $parent">
+                        <div data-bind="visible: notes().length > 0">
+                            <table class="table table-bordered table-hover notes">
+                                <thead>
+                                <tr>
+                                    <th>Updated</th>
+                                    <th>Team Member</th>
+                                    <th>Details</th>
+                                </tr>
+                                </thead>
+                                <tbody data-bind="foreach:notes">
+                                <tr>
+                                    <td class="col-sm-2"><div data-bind="text:moment(ActionDate()).format('L')"></div></td>
+                                    <td class="col-sm-3"><div data-bind="text: UserName"></div></td>
+                                    <td class="col-sm-7"><div data-bind="text:CreationNotes"></div></td>
+                                </tr>
+                                </tbody>
+
+                            </table>
+                        </div>
+                        <div data-bind="visible: notes().length < 1">
+                            <span data-bind="text: notesLoadMessage"></span>
+                        </div>
+
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-info" data-dismiss="modal">Return to Prospect View</button>
                 </div>
             </div>
         </div>

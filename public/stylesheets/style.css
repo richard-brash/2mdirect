@@ -28,18 +28,27 @@ span.nameheader {
 
 }
 
-
 .prospect{
     margin-bottom: 15px;
     padding: 5px;
 
 }
 
-.note{
+table.notes{
+    width: 90%;
     margin-bottom: 15px;
     padding: 5px;
 
 }
+
+table.notes thead{
+    background-color: #0099FF;;
+}
+
+table.notes th{
+    text-align: center;
+}
+
 
 .noteDetail{
     background-color: #bbbbbb;
@@ -52,3 +61,4 @@ span.nameheader {
 .modal-dialog {
     width: 90%;
 }
+

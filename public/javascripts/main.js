@@ -52,12 +52,39 @@ $(document).ready(function(){
 function Note(data){
     var self = this;
     self.Id = ko.observable(data.Id);
-    self.CreationDate = ko.observable(data.CreationDate);
+    self.UserID = ko.observable(data.UserID);
+    self.UserName = ko.observable(data.UserName);
+    self.ActionDate = ko.observable(data.CreationDate);
     self.CreationNotes = ko.observable(data.CreationNotes);
     self.ActionDescription = ko.observable(data.ActionDescription);
+
     self.showMe = ko.observable(false);
 
     self.toggleMe = function () { self.showMe(!self.showMe()) };
+
+    self.init = function(appname){
+
+        if(self.ActionDescription().includes("turboDial")){
+
+            var lines = self.CreationNotes().split("\n");
+            if(lines.length >= 4){
+                self.CreationNotes(lines[4]);
+            }
+
+        }
+
+        $.get("infusionsoftuser/" + appname + "/" + parseInt(self.UserID()) ,function(result){
+
+            if(result.success){
+                self.UserName(result.data.FirstName + " " + result.data.LastName);
+            } else {
+                self.UserName("Marketing");
+            }
+
+        });
+    }
+
+
 }
 
 function Prospect(data){
@@ -186,6 +213,7 @@ function AppViewModel(context){
     self.selectProspect = function(item){
 
         self.selectedProspect(item);
+        self.getNotes(item);
     }
 
     self.getContacts = function(){
@@ -273,8 +301,13 @@ function AppViewModel(context){
 
 
                     var mapped = $.map(response.data, function(item) {
-                        return new Note(item);
+
+                        var note = new Note(item);
+                        note.init(self.context["appname"]);
+                        return note;
                     });
+
+
 
                     self.notes(mapped);
 
