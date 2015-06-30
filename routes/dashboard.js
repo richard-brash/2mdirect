@@ -39,6 +39,13 @@ router.param('savedsearchid', function(req, res, next, savedsearchid){
 
 });
 
+router.param('userid', function(req, res, next, userid){
+
+    req.userid = parseInt(userid);
+    next();
+
+});
+
 
 router.use(function (req, res, next) {
     var context = req.body;
@@ -68,63 +75,6 @@ router.get("/", function(req,res){
 
 })
 
-/*
-
-The route needs to have the contactID and the reportID the page number requested
-  The process will look up the companyID based on the ContactId
-  Pull in the companyConfig and then parse out the savedReportId for the report ID.  This will work similarly to how we do email templates
-
-Routes...
-
-Pull the initial page and page artifacts with User Context
-Pull the Saved Search Data (1000) records
-Get 1 records based on Name
-Get all the notes
-
- */
-
-
-// Get page and artifacts
-router.get("/:appName/:cid/:configId", function(req,res){
-
-    isclient.Caller(req.appName, "ContactService.load", [req.cid,["CompanyID"]], function(error, contact){
-
-        if(error || !contact){
-            res.json(rbmJSONResponse.errorResponse(error));
-        }else {
-
-            // Get the companyConfig
-            isclient.Caller(req.appName, "DataService.load", ["Company", contact.CompanyID, ["_SendGridConfig"]], function(error, company) {
-                if (error || !company) {
-                    res.json(rbmJSONResponse.errorResponse(error));
-                } else {
-                    var companyConfig = JSON.parse(company._SendGridConfig.replace(/&quot;/g, '"'));
-                    var savedSearchID = 0;
-                    var userID = 0;
-
-                    for (var key in companyConfig.reportConfigs) {
-                        if (companyConfig.reportConfigs[key].configId == req.configId) {
-                            savedSearchID = companyConfig.reportConfigs[key].savedSearchID;
-                            userID = companyConfig.reportConfigs[key].userID;
-                        }
-                    }
-                }
-
-                var dataContext = {
-                    appName: req.appName,
-                    CompanyID: contact.CompanyID,
-                    savedSearchID : savedSearchID,
-                    userID : userID
-                }
-
-                //res.json({context:dataContext});
-                res.render("dashboard",{context:dataContext});
-            })
-        }
-
-    });
-
-})
 
 
 router.post("/notes", function(req,res){
@@ -138,7 +88,8 @@ router.post("/notes", function(req,res){
     isclient.Caller(context.appname, "DataService.query", ["ContactAction", 1000,0, query,
         [
             "Id",
-            "CreationDate",
+            "UserID",
+            "ActionDate",
             "CreationNotes",
             "ActionDescription"
         ]
@@ -152,6 +103,18 @@ router.post("/notes", function(req,res){
 
     });
 
+});
+
+router.get("/user/:appName/:userid", function(req,res){
+
+    isclient.Caller(req.appName, "DataService.load", ["", req.userid,["FirstName", "LastName",]], function(error, user){
+
+        if(error || !user){
+            res.json(rbmJSONResponse.errorResponse(error));
+        }else{
+            res.json(user);
+        }
+    });
 
 });
 

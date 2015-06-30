@@ -31,6 +31,13 @@ function Config(){
         //    UserId:1
         //},
         {
+            name:"TSP",
+            AppName:"cj105",
+            ApiKey:"e33781ad49e3c4934b5fb59b355f3821",
+            UserId:1,
+            Dashboard:169
+        },
+        {
             name:"M2Direct",
             AppName:"et230",
             ApiKey:"c17788ab5cf2ae112e9da759b50f57f9",
