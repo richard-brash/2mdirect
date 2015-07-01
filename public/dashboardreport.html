@@ -46,13 +46,13 @@
         <div data-bind="foreach:contacts">
             <div class="prospect">
                 <div class="row">
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         <span class="nameheader" data-bind="text: fullName"/>
                     </div>
-                    <div class="col-sm-4">
-                        <img alt="" data-bind="attr: {src: flame}">
+                    <div class="col-sm-3">
+                        <img alt="" style="width: 152px; height: 32px" data-bind="attr: {src: flame}">
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-6">
                         <button class="btn btn-lg bg-primary" data-bind="click:$parent.selectProspect" data-toggle="modal" data-target="#companyDetails">View Details</button>
                     </div>
 
