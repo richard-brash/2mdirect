@@ -267,7 +267,7 @@ function AppViewModel(context){
 
 
                 } else {
-                    toastr.error(response.Message);
+                    toastr.error(response.error);
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
@@ -316,7 +316,7 @@ function AppViewModel(context){
                     }
 
                 } else {
-                    toastr.error(response.Message);
+                    toastr.error(response.error);
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
@@ -352,7 +352,7 @@ function AppViewModel(context){
                     self.contacts(mapped);
 
                 } else {
-                    toastr.error(response.Message);
+                    toastr.error(response.error);
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
