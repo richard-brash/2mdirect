@@ -54,8 +54,8 @@ function Note(data){
     self.Id = ko.observable(data.Id);
     self.UserID = ko.observable(data.UserID);
     self.UserName = ko.observable(data.UserName);
-    self.ActionDate = ko.observable(data.CreationDate);
-    self.CreationNotes = ko.observable(data.CreationNotes);
+    self.CreationDate = ko.observable(data.CreationDate);
+    self.CreationNotes = ko.observable((data.CreationNotes) ? data.CreationNotes : "[No Notes]" );
     self.ActionDescription = ko.observable(data.ActionDescription);
 
     self.showMe = ko.observable(false);
@@ -64,7 +64,7 @@ function Note(data){
 
     self.init = function(appname){
 
-        if(self.ActionDescription().includes("turboDial")){
+        if(self.ActionDescription().indexOf("turboDial") != -1){
 
             var lines = self.CreationNotes().split("\n");
             if(lines.length >= 4){

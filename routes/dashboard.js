@@ -89,7 +89,7 @@ router.post("/notes", function(req,res){
         [
             "Id",
             "UserID",
-            "ActionDate",
+            "CreationDate",
             "CreationNotes",
             "ActionDescription"
         ]
