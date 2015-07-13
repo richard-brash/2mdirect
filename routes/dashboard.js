@@ -53,7 +53,7 @@ router.use(function (req, res, next) {
     isclient.Caller(context.appname, "ContactService.load", [context.cid,["FirstName", "LastName", "Email","Id", "CompanyID"]], function(error, contact){
 
         if(error){
-            res.json(rbmJSONResponse.errorResponse(error));
+            req.user = null;
         } else {
             req.user = contact;
         }
@@ -203,7 +203,6 @@ router.post("/savedsearch", function(req,res){
                     var results = [];
 
                     for(var i = 0; i < reportData.length; i++){
-                        console.log(reportData[i]);
 
                         results.push({
                             Id: reportData[i].Id,

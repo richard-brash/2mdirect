@@ -211,7 +211,6 @@ function AppViewModel(context){
     };
 
     self.selectProspect = function(item){
-
         self.selectedProspect(item);
         self.getNotes(item);
     }
@@ -288,7 +287,7 @@ function AppViewModel(context){
 
         var data = {
             appname : self.context["appname"],
-            cid: item.Id
+            cid: item.Id()
         };
 
         var payload = {
@@ -299,15 +298,12 @@ function AppViewModel(context){
 
                 if (response.success) {
 
-
                     var mapped = $.map(response.data, function(item) {
 
                         var note = new Note(item);
                         note.init(self.context["appname"]);
                         return note;
                     });
-
-
 
                     self.notes(mapped);
 
