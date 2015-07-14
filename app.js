@@ -12,6 +12,8 @@ var event = require('./routes/event');
 var unsubscribe = require('./routes/unsubscribe');
 var dashboard = require('./routes/dashboard');
 var infusionsoftuser = require('./routes/infusionsoftuser');
+var update = require('./routes/update');
+
 
 var app = express();
 
@@ -34,6 +36,7 @@ app.use('/event', event);
 app.use('/unsubscribe', unsubscribe);
 app.use('/dashboard', dashboard);
 app.use('/infusionsoftuser', infusionsoftuser);
+app.use('/update', update);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
