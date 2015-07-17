@@ -35,6 +35,7 @@ function Config(){
             AppName:"et230",
             ApiKey:"c17788ab5cf2ae112e9da759b50f57f9",
             RBMKey:"J6M7F6dxZ0",
+            Category:50,
             UserId:1,
             Dashboard:169
         },
