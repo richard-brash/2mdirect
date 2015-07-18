@@ -44,7 +44,7 @@ router.post("/", function(req,res){
                 //  Loop through the target groups
                 var targetgroup;
                 for(targetgroup in targetgroups){
-                    checkTarget(context.appname, context.cid,targetgroups[targetgroup].Id, targetgroups[targetgroup].GroupDescription);
+                    checkTarget(context.appname, context.cid,targetgroups[targetgroup].Id, targetgroups[targetgroup]);
                 }
 
             }
@@ -61,20 +61,40 @@ router.post("/", function(req,res){
 
 });
 
-var checkTarget = function(appname, cid, gid, companyID){
+var checkTarget = function(appname, cid, gid, group){
 
     //  See if the contact has the target tag in question
     isclient.Caller(appname, "DataService.query", ["ContactGroupAssign", 1000, 0, {ContactId:cid, GroupId:gid}, ["ContactId", "GroupId"]], function(error, contactgroups){
 
         if(!error && contactgroups && contactgroups.length > 0){
 
-            console.log("Contact:" + cid + " has target group tag:" + gid + " so, we are going to set the company to: " + companyID);
+            var company = JSON.parse(group.GroupDescription.replace(/&quot;/g,'"'));
 
-            //  Set the CompanyID
-            isclient.Caller(appname, "ContactService.update", [cid,{CompanyID:parseInt(companyID)}],function(){});
+            console.log("Contact:" + cid + " has target group tag:" + gid + " so, we are going to set the company to: " + company.id);
 
-            //  Remove the tag
-            isclient.Caller(appname, "ContactService.removeFromGroup", [cid,gid],function(){});
+            //  Set the Company Name
+            isclient.Caller(appname, "ContactService.update", [cid,{Company:company.name}],function(error, result){
+                if(!error){
+                    console.log(result);
+                    //  Set the CompanyID
+                    isclient.Caller(appname, "ContactService.update", [cid,{CompanyID:parseInt(company.id)}],function(error, result){
+                        if(!error){
+                            console.log(result);
+
+                            //  Remove the tag
+                            isclient.Caller(appname, "ContactService.removeFromGroup", [cid,gid],function(error,result){
+                                console.log(result);
+                            });
+
+                        }
+
+                    });
+
+
+
+                }
+            });
+
 
         }
 
