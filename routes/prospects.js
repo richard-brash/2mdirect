@@ -7,6 +7,7 @@ var express = require('express');
 var isclient = require('../lib/InfusionsoftApiClient');
 var url = require('url');
 var moment = require('moment');
+var Config = require('../config');
 
 var rbmJSONResponse = require("../lib/rbmJSONResponse");
 
@@ -103,9 +104,9 @@ router.post("/notes", function(req,res){
 
 });
 
-router.get("/user/:appName/:userid", function(req,res){
+router.get("/:appName/:userid", function(req,res){
 
-    isclient.Caller(req.appName, "DataService.load", ["", req.userid,["FirstName", "LastName",]], function(error, user){
+    isclient.Caller(req.appName, "DataService.load", ["Contact", req.userid,["FirstName", "LastName", "Email"]], function(error, user){
 
         if(error || !user){
             res.json(rbmJSONResponse.errorResponse(error));
@@ -129,36 +130,41 @@ router.post("/search", function(req,res){
 
     query["CompanyID"] = req.user.CompanyID;
 
-    isclient.Caller(context.appname, "DataService.query", ["Contact", parseInt(context.take),parseInt(context.skip-1), query,
-        [
-            "Id",
-            "Company",
-            "FirstName",
-            "LastName",
-            "Email",
-            "JobTitle",
-            "Phone1",
-            "Website",
-            "LastUpdated",
-            "StreetAddress1",
-            "StreetAddress2",
-            "City",
-            "State",
-            "PostalCode",
-            "Leadsource",
-            "_CompanyName",
-            "_EntityType",
-            "_ParentName",
-            "_UltimateParentName",
-            "_NumberofEmployees",
-            "_AnnualRevenue0",
-            "_YearEstablished",
-            "_CompanyDescription",
-            "_NAICS",
-            "_IndustryGroupName"
+    var customFields = Config.ISConfig(context.appname).customFields;
 
-    ]
-    ],function(error, data){
+    var askFields =         [
+        "Id",
+        "Company",
+        "FirstName",
+        "LastName",
+        "Email",
+        "JobTitle",
+        "Phone1",
+        "Website",
+        "LastUpdated",
+        "StreetAddress1",
+        "StreetAddress2",
+        "City",
+        "State",
+        "PostalCode",
+        "Leadsource",
+        "_CompanyName",
+        "_EntityType",
+        "_ParentName",
+        "_UltimateParentName",
+        "_NumberofEmployees",
+//        "_AnnualRevenue0",
+        "_YearEstablished",
+        "_CompanyDescription",
+        "_NAICS",
+        "_IndustryGroupName"
+
+    ];
+
+    var fields = askFields.concat(customFields);
+
+    isclient.Caller(context.appname, "DataService.query", ["Contact", parseInt(context.take),parseInt(context.skip-1), query,fields],
+        function(error, data){
 
         if(error){
             res.json(rbmJSONResponse.errorResponse(error));
@@ -190,6 +196,8 @@ router.post("/savedsearch", function(req,res){
                 }
             }
 
+            var customFields = Config.ISConfig(context.appname).customFields;
+
             //  This is where we will get the data
             isclient.Caller(context.appname, "SearchService.getSavedSearchResultsAllFields", [parseInt(savedSearchID), parseInt(userID), 0], function(error, reportData){
 
@@ -201,7 +209,7 @@ router.post("/savedsearch", function(req,res){
 
                     for(var i = 0; i < reportData.length; i++){
 
-                        results.push({
+                        var data = {
                             Id: reportData[i].Id,
                             Company : reportData[i].Company,
                             FirstName : reportData[i]['ContactName.firstName'],
@@ -222,16 +230,21 @@ router.post("/savedsearch", function(req,res){
                             _ParentName : reportData[i].Custom_ParentName,
                             _UltimateParentName : reportData[i].Custom_UltimateParentName,
                             _NumberofEmployees : reportData[i].Custom_NumberofEmployees,
-                            _AnnualRevenue0 : reportData[i].Custom_AnnualRevenue0,
                             _YearEstablished : reportData[i].Custom_YearEstablished,
                             _CompanyDescription : reportData[i].CompanyInfo,
                             Score : reportData[i].ScoreId1,
                             LinkedIn: reportData[i].LinkedInSocialAccountName,
                             _NAICS : reportData[i].Custom_NAICS,
                             _IndustryGroupName : reportData[i].Custom_IndustryGroupName
-                        });
+                        };
 
-                        if(i > 100){
+                        for(var c = 0; c < customFields.length; c++){
+                            data[customFields[c]] = reportData[i]["Custom" + customFields[c]];
+                        }
+
+                        results.push(data);
+
+                        if(i > 25){
                             i = reportData.length;
                         }
 
