@@ -67,7 +67,7 @@
                         <div><label>Email:</label> <span data-bind="text:Email"></span></div>
                         <div><label>Website:</label> <span data-bind="text:Website"></span></div>
                         <div><label>Number of Employees:</label> <span data-bind="text:_NumberofEmployees"></span></div>
-                        <div><label>Annual Revenue:</label> <span data-bind="money:_AnnualRevenue0"></span></div>
+                        <div><label>Annual Revenue:</label> <span data-bind="money:AnnualRevenue"></span></div>
                     </div>
                     <div class="col-sm-6">
 
@@ -122,12 +122,12 @@
                                 </tr>
                                 </thead>
                                 <tbody data-bind="foreach:notes">
-                                <tr>
+                                <tr data-bind="if: $data.showMe()">
                                     <td class="col-sm-2"><div data-bind="text:moment(CreationDate()).format('L')"></div></td>
                                     <td class="col-sm-3"><div data-bind="text: UserName"></div></td>
                                     <td class="col-sm-7">
                                         <div class="alert alert-info" data-bind="text:ActionDescription"></div>
-                                        <div data-bind="text: CreationNotes"></div>
+                                        <div data-bind="html: CreationNotes"></div>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -153,7 +153,7 @@
 <script src="javascripts/knockout-3.3.0.js"></script>
 <script src="javascripts/moment.js"></script>
 <script src="javascripts/toastr.min.js"></script>
-<script src="javascripts/dashboardclient.js"></script>
+<script src="javascripts/prospects_client.js"></script>
 </body>
 
 </html>

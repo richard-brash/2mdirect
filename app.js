@@ -11,6 +11,10 @@ var registerclick = require('./routes/registerclick');
 var event = require('./routes/event');
 var unsubscribe = require('./routes/unsubscribe');
 var dashboard = require('./routes/dashboard');
+var prospects = require('./routes/prospects');
+var opportunities = require('./routes/opportunities');
+var opportunity = require('./routes/opportunity');
+var refermatter = require('./routes/refermatter');
 var infusionsoftuser = require('./routes/infusionsoftuser');
 var update = require('./routes/update');
 
@@ -35,6 +39,11 @@ app.use('/registerclick', registerclick);
 app.use('/event', event);
 app.use('/unsubscribe', unsubscribe);
 app.use('/dashboard', dashboard);
+app.use('/prospects', prospects);
+app.use('/opportunities', opportunities);
+app.use('/opportunity', opportunity);
+app.use('/refermatter', refermatter);
+
 app.use('/infusionsoftuser', infusionsoftuser);
 app.use('/update', update);
 
