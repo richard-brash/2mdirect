@@ -7,6 +7,7 @@ var express = require('express');
 var isclient = require('../lib/InfusionsoftApiClient');
 var url = require('url');
 var moment = require('moment');
+var Config = require('../config');
 
 var rbmJSONResponse = require("../lib/rbmJSONResponse");
 
@@ -48,6 +49,39 @@ router.use(function (req, res, next) {
 
 });
 
+router.post("/list", function(req,res){
+
+    var context = req.body;
+
+    var query = {};
+
+    query["_CompanyID"] = req.user.CompanyID;
+
+    isclient.Caller(context.appname, "DataService.query", ["Lead", 1000, 0, query,[
+        "OpportunityTitle",
+        "Id",
+        "StageID",
+        "ContactID",
+        "NextActionDate",
+        "NextActionNotes",
+        "DateCreated",
+        "_OwnerName",
+        "_OwnerEmail"
+    ]
+    ], function(error, data){
+
+        if(error || !data){
+            res.json(rbmJSONResponse.errorResponse(error));
+        }else{
+            res.json(rbmJSONResponse.successResponse(data));
+        }
+    });
+
+
+});
+
+
+
 router.post("/notes", function(req,res){
 
     var context = req.body;
@@ -76,19 +110,6 @@ router.post("/notes", function(req,res){
 
 });
 
-router.get("/user/:appName/:userid", function(req,res){
-
-    isclient.Caller(req.appName, "DataService.load", ["", req.userid,["FirstName", "LastName",]], function(error, user){
-
-        if(error || !user){
-            res.json(rbmJSONResponse.errorResponse(error));
-        }else{
-            res.json(user);
-        }
-    });
-
-});
-
 router.post("/search", function(req,res){
 
     var context = req.body;
@@ -102,13 +123,42 @@ router.post("/search", function(req,res){
 
     query["CompanyID"] = req.user.CompanyID;
 
-    isclient.Caller(context.appname, "DataService.query", ["Contact", parseInt(context.take),parseInt(context.skip-1), query,
-        [
-            "Id",
-            "FirstName",
-            "LastName",
-            "Email"
-        ]
+    var customFields = Config.ISConfig(context.appname).customFields;
+
+    var askFields =         [
+        "Id",
+        "Company",
+        "FirstName",
+        "LastName",
+        "Email",
+        "JobTitle",
+        "Phone1",
+        "Website",
+        "LastUpdated",
+        "StreetAddress1",
+        "StreetAddress2",
+        "City",
+        "State",
+        "PostalCode",
+        "Leadsource",
+        "_CompanyName",
+        "_EntityType",
+        "_ParentName",
+        "_UltimateParentName",
+        "_NumberofEmployees",
+//        "_AnnualRevenue0",
+        "_YearEstablished",
+        "_CompanyDescription",
+        "_NAICS",
+        "_IndustryGroupName"
+
+    ];
+
+    var fields = askFields.concat(customFields);
+
+
+
+    isclient.Caller(context.appname, "DataService.query", ["Contact", parseInt(context.take),parseInt(context.skip-1), query, fields
     ],function(error, data){
 
         if(error){

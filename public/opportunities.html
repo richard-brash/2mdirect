@@ -43,13 +43,14 @@
                 <div class="row">
                     <div class="col-sm-5">
                         <div><label>Opportunity:</label> <span data-bind="text:OpportunityTitle"></span></div>
+                        <div><label>Date Created:</label> <span data-bind="text:moment(DateCreated()).format('M/D/YYYY h:mm a')"></span></div>
                         <div><label>Contact Name:</label> <span data-bind="text:ContactName"></span></div>
-                        <div><label>Stage:</label> <span data-bind="text:StageName"></span></div>
+                        <div><label>Opportunity Owner:</label> <span data-bind="text:OpportunityOwner"></span></div>
                     </div>
                     <div class="col-sm-5">
+                        <div><label>Stage:</label> <span data-bind="text:StageName"></span></div>
                         <div><label>Next Action Date:</label> <span data-bind="text:moment(NextActionDate()).format('M/D/YYYY h:mm a')"></span></div>
-                        <div><label>Date Created:</label> <span data-bind="text:moment(DateCreated()).format('M/D/YYYY h:mm a')"></span></div>
-                        <div><label>Opportunity Owner:</label> <span data-bind="text:OpportunityOwner"></span></div>
+                        <div><textarea  disabled cols="40" rows="5" data-bind="value:NextActionNotes"></textarea></div>
                     </div>
                     <div class="col-sm-2">
                         <div><button class="btn btn-med-round bg-primary" data-bind="click:$parent.showNotes" data-toggle="modal" data-target="#opportunityNotes">View</button></div>
@@ -71,6 +72,21 @@
 
                 </div>
                 <div class="modal-body">
+                    <div class="container" data-bind="with: prospect">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div><label>Entity Type:</label> <span data-bind="text:_EntityType"></span></div>
+                                <div><label>Parent Name:</label> <span data-bind="text:_ParentName"></span></div>
+                                <div><label>Ultimate Parent Name:</label> <span data-bind="text:_UltimateParentName"></span></div>
+                                <div><label>Year Established:</label> <span data-bind="text:_YearEstablished"></span></div>
+                                <div><label>Number of Employees:</label> <span data-bind="text:_NumberofEmployees"></span></div>
+                                <div><label>Annual Revenue:</label> <span data-bind="money:AnnualRevenue"></span></div>
+                                <div><label>NAISC:</label> <span data-bind="text:_NAICS"></span></div>
+                                <div><label>Industry Group Name:</label> <span data-bind="text:_IndustryGroupName"></span></div>
+                                <div><label>Company Description:</label> <span data-bind="text:_CompanyDescription"></span></div>
+                            </div>
+                        </div>
+                    </div>
                     <hr/>
                     <div class="container" data-bind="with: $parent">
                         <div data-bind="visible: notes().length > 0">

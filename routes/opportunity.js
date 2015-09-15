@@ -6,6 +6,7 @@
 var express = require('express');
 var isclient = require('../lib/InfusionsoftApiClient');
 var url = require('url');
+var Config = require('../config');
 
 var rbmJSONResponse = require("../lib/rbmJSONResponse");
 
@@ -43,6 +44,7 @@ router.get("/:appname/:cid", function(req,res){
             "Id",
             "StageID",
             "NextActionDate",
+            "NextActionNotes",
             "DateCreated",
             "_OwnerName",
             "_OwnerEmail",
@@ -69,6 +71,7 @@ router.get("/byid/:appname/:cid", function(req,res){
         "Id",
         "StageID",
         "NextActionDate",
+        "NextActionNotes",
         "DateCreated",
         "_OwnerName",
         "_OwnerEmail",
@@ -83,6 +86,54 @@ router.get("/byid/:appname/:cid", function(req,res){
     });
 
 });
+
+router.get("/contact/:appname/:cid", function(req,res){
+
+    var customFields = Config.ISConfig(req.appname).customFields;
+
+    var askFields =         [
+        "Id",
+        "Company",
+        "FirstName",
+        "LastName",
+        "Email",
+        "JobTitle",
+        "Phone1",
+        "Website",
+        "LastUpdated",
+        "StreetAddress1",
+        "StreetAddress2",
+        "City",
+        "State",
+        "PostalCode",
+        "Leadsource",
+        "_CompanyName",
+        "_EntityType",
+        "_ParentName",
+        "_UltimateParentName",
+        "_NumberofEmployees",
+//        "_AnnualRevenue0",
+        "_YearEstablished",
+        "_CompanyDescription",
+        "_NAICS",
+        "_IndustryGroupName"
+
+    ];
+
+    var fields = askFields.concat(customFields);
+
+    isclient.Caller(req.appname, "ContactService.load", [parseInt(req.cid), fields], function(error, contact){
+
+        if(error || !contact){
+            res.json(rbmJSONResponse.errorResponse(error));
+        }else{
+            res.json(contact);
+        }
+    });
+
+});
+
+
 
 router.get("/stage/:appname/:stageid", function(req,res){
 

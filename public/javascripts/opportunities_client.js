@@ -131,35 +131,108 @@ function Note(data){
 
 }
 
+function Prospect(data){
+
+    var self = this;
+
+    self.Id = ko.observable(data.Id);
+    self.Company  = ko.observable(data.Company); //  This is the "Client Company"
+    self.FirstName = ko.observable(data.FirstName);
+    self.LastName = ko.observable(data.LastName);
+    self.Email = ko.observable(data.Email);
+    self.JobTitle = ko.observable(data.JobTitle);
+    self.Website = ko.observable(data.Website);
+    self.LastUpdated = ko.observable(data.LastUpdated);
+    self.Phone1 = ko.observable(data.Phone1);
+    self.StreetAddress1 = ko.observable(data.StreetAddress1);
+    self.StreetAddress2 = ko.observable(data.StreetAddress2);
+    self.City = ko.observable(data.City);
+    self.State = ko.observable(data.State);
+    self.PostalCode = ko.observable(data.PostalCode);
+    self.Leadsource = ko.observable(data.Leadsource);
+    self._CompanyName = ko.observable(data._CompanyName);
+    self._EntityType = ko.observable(data._EntityType);
+    self._ParentName = ko.observable(data._ParentName);
+    self._UltimateParentName = ko.observable(data._UltimateParentName);
+    self._NumberofEmployees = ko.observable(data._NumberofEmployees);
+    self.AnnualRevenue = ko.observable((data._AnnualRevenue)?data._AnnualRevenue:data._AnnualRevenue0);
+    self._YearEstablished = ko.observable(data._YearEstablished);
+    self._CompanyDescription = ko.observable(data._CompanyDescription);
+    self._CompanyDescription = ko.observable(data._CompanyDescription);
+    self.Score = ko.observable(data.Score);
+    self.LinkedIn = ko.observable(data.LinkedIn);
+    self._IndustryGroupName = ko.observable(data._IndustryGroupName);
+    self._NAICS = ko.observable(data._NAICS);
+
+
+    self.fullName = ko.computed(function() {
+        return self.FirstName() + " " + self.LastName();
+    });
+
+    self.flame = ko.computed(function(){
+
+        var score = Math.round((self.Score() * 100)/20);
+
+        if(score > 5){score = 5}
+
+        switch (score){
+            case 1:
+                return "/images/" +"OneFlame.png";
+                break;
+            case 2:
+                return "/images/" +"TwoFlame.png";
+                break;
+            case 3:
+                return "/images/" +"ThreeFlame.png";
+                break;
+            case 4:
+                return "/images/" +"FourFlame.png";
+                break;
+            case 5:
+                return "/images/" +"FiveFlame.png";
+                break;
+            default:
+                return "/images/" +"ZeroFlame.png";
+                break;
+        }
+
+    })
+}
+
 function Opportunity(data, parent){
 
     var self = this;
 
-    self.ContactID = ko.observable(data.Id);
+    self.Id = ko.observable(data.Id);
+    self.ContactID = ko.observable(data.ContactID);
 
     self.FirstName = ko.observable(data.FirstName);
     self.LastName = ko.observable(data.LastName);
     self.Email = ko.observable(data.Email);
 
-    self.ContactName = ko.computed(function(){
-        return data.FirstName + " " + data.LastName;
-    });
+    self.ContactName = ko.observable(data.FirstName + " " + data.LastName);
 
-
-    self.OpportunityTitle = ko.observable();
-    self.OpportunityId  = ko.observable();
-    self.StageID = ko.observable();
+    self.OpportunityTitle = ko.observable(data.OpportunityTitle);
+    self.StageID = ko.observable(data.StageID);
     self.StageName = ko.observable();
 
-    self.NextActionDate = ko.observable();
-    self.DateCreated = ko.observable();
-    self.OpportunityOwner = ko.observable();
+    self.NextActionDate = ko.observable(data.NextActionDate);
+    self.NextActionNotes = ko.observable(data.NextActionNotes);
 
-    self.founddata = ko.observable(false);
+    self.DateCreated = ko.observable(data.DateCreated);
+    self.OpportunityOwner = ko.observable(data._OwnerName);
+    self.OpportunityOwnerEmail = ko.observable(data._OwnerEmail);
 
-    self.init = function(appname){
+    self.founddata = ko.observable(true);
 
-        $.get("opportunity/" + appname + "/" + parseInt(self.ContactID()) ,function(result){
+    self.prospect = ko.observable( new Prospect(data));
+
+    self.initfromsearch = function(appname, cid){
+
+        self.ContactID(cid);
+
+        $.get("opportunity/" + appname + "/" + parseInt(cid) ,function(result){
+
 
             if(result.success && result.data && result.data.length > 0){
 
@@ -170,21 +243,53 @@ function Opportunity(data, parent){
                 var opportunity = result.data[0];
 
                 self.OpportunityTitle(opportunity.OpportunityTitle);
-                self.OpportunityId(opportunity.Id);
+                self.Id(opportunity.Id);
                 self.NextActionDate(opportunity.NextActionDate);
+                self.NextActionNotes(opportunity.NextActionNotes);
                 self.DateCreated(opportunity.DateCreated);
                 self.OpportunityOwner(opportunity._OwnerName);
+                self.OpportunityOwnerEmail(opportunity._OwnerEmail);
 
                 $.get("opportunity/stage/" + appname + "/" + parseInt(opportunity.StageID), function(stage){
 
                     if(stage.success && stage.data){
-                           self.StageName(stage.data.StageName);
+                        self.StageName(stage.data.StageName);
                     }
 
                 })
 
 
             }
+
+        });
+
+    }
+
+    self.init = function(appname){
+
+        $.get("opportunity/contact/" + appname + "/" + parseInt(self.ContactID()) ,function(contact){
+
+
+            parent.foundOpportunityData(true);
+            self.founddata(true);
+
+
+            self.FirstName(contact.FirstName);
+            self.LastName(contact.LastName);
+            self.Email(contact.Email);
+
+            self.ContactName(contact.FirstName + " " + contact.LastName);
+
+            self.prospect(new Prospect(contact));
+
+
+            $.get("opportunity/stage/" + appname + "/" + parseInt(self.StageID()), function(stage){
+
+                if(stage.success && stage.data){
+                    self.StageName(stage.data.StageName);
+                }
+
+            })
 
         });
 
@@ -258,7 +363,7 @@ function AppViewModel(context){
     self.updateOpportunity = function(item){
 
         var data = ko.toJS(item);
-        var url = "http://dilogr.com/app1/s/afteractionreport?email=" + data.Email + "&lastname=" + data.LastName + "&firstname=" + data.FirstName + "&opid=" + data.OpportunityId;
+        var url = "http://dilogr.com/app1/s/afteractionreport?email=" + data.Email + "&lastname=" + data.LastName + "&firstname=" + data.FirstName + "&opid=" + data.Id;
 
         var win = window.open(url, '_blank');
         if(win){
@@ -293,6 +398,7 @@ function AppViewModel(context){
 
     self.doSearch = function() {
 
+        self.opportunities([]);
         self.foundOpportunityData(false);
 
         var currentPage = self.currentPage();
@@ -317,7 +423,7 @@ function AppViewModel(context){
                     var mapped = $.map(response.data, function(item) {
 
                         var opportunity = new Opportunity(item, self);
-                        opportunity.init(self.context["appname"]);
+                        opportunity.initfromsearch(self.context["appname"], item.Id);
                         return opportunity;
 
                     });
@@ -385,7 +491,46 @@ function AppViewModel(context){
 
     }
 
+    var initalLoad = function(){
 
+        var data = {
+            appname : self.context["appname"],
+            cid: self.context["cid"]
+        };
+
+        var payload = {
+            url: "/opportunities/list",
+            method: "POST",
+            data: data,
+            success: function(response) {
+
+                if (response.success) {
+
+
+                    var mapped = $.map(response.data, function(item) {
+
+                        var opportunity = new Opportunity(item, self);
+                        opportunity.init(self.context["appname"]);
+                        return opportunity;
+
+                    });
+
+                    self.opportunities(mapped);
+
+                } else {
+                    toastr.error(response.error);
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                toastr.error(errorThrown);
+                console.log(jqXHR);
+            }
+        };
+
+        $.ajax(payload);
+
+
+    }();
 
 
 
