@@ -37,15 +37,15 @@ function Config(){
             RBMKey:"J6M7F6dxZ0",
             Category:50,
             UserId:1,
-            Dashboard:169,
-            customFields: ["_AnnualRevenue0"]
+            customFields: ["_AnnualRevenue0"],
+            TeamMemberTemplate: 3777,
+            NewOwnerTemplate: 3779
         },
         {
             name:"AEG",
             AppName:"je230",
             ApiKey:"78fe52c4c1c84254d80bebcaa45a5c4d",
             UserId:1,
-            Dashboard:123,
             customFields: ["_AnnualRevenue"]
         },
         {
