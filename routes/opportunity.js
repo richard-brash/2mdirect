@@ -33,6 +33,13 @@ router.param('stageid', function(req, res, next, stageid){
 
 });
 
+router.get("/afteractionul/:appname", function(req,res){
+
+    var afterActionURL = Config.ISConfig(req.appname).afterActionURL;
+    res.json({afterActionURL:afterActionURL});
+
+})
+
 router.get("/:appname/:cid", function(req,res){
 
     var query = {};
