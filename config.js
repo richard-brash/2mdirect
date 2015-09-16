@@ -38,6 +38,7 @@ function Config(){
             Category:50,
             UserId:1,
             customFields: ["_AnnualRevenue0"],
+            afterActionURL: "http://dilogr.com/app1/s/afteractionreport",
             TeamMemberTemplate: 3777,
             NewOwnerTemplate: 3779,
             compassCategories: [51,53,55,57,59,61,63,65,67,69,71]
@@ -48,6 +49,7 @@ function Config(){
             ApiKey:"78fe52c4c1c84254d80bebcaa45a5c4d",
             UserId:1,
             customFields: ["_AnnualRevenue"],
+            afterActionURL: " http://dilogr.com/app1/s/afteractionje230",
             TeamMemberTemplate: 3663,
             NewOwnerTemplate: 3661,
             compassCategories: [39,41,43,45,47,49,51,53,55,57,59,61]

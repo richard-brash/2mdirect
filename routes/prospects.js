@@ -58,7 +58,7 @@ router.param('userid', function(req, res, next, userid){
 
 router.use(function (req, res, next) {
     var context = req.body;
-    if(context.name){
+    if(context.appname){
         isclient.Caller(context.appname, "ContactService.load", [context.cid,["FirstName", "LastName", "Email","Id", "CompanyID"]], function(error, contact){
 
             if(error){
@@ -162,6 +162,55 @@ router.get("/withtag/:appname/:cid/:gid", function(req,res){
 
 });
 
+router.get("/byid/:appname/:cid", function(req,res){
+
+    var customFields = Config.ISConfig(req.appname).customFields;
+
+    var askFields =         [
+        "Id",
+        "Company",
+        "FirstName",
+        "LastName",
+        "Email",
+        "JobTitle",
+        "Phone1",
+        "Website",
+        "LastUpdated",
+        "StreetAddress1",
+        "StreetAddress2",
+        "City",
+        "State",
+        "PostalCode",
+        "Leadsource",
+        "_CompanyName",
+        "_EntityType",
+        "_ParentName",
+        "_UltimateParentName",
+        "_NumberofEmployees",
+//        "_AnnualRevenue0",
+        "_YearEstablished",
+        "_CompanyDescription",
+        "_NAICS",
+        "_IndustryGroupName"
+
+    ];
+
+    var fields = askFields.concat(customFields);
+
+    isclient.Caller(req.appname, "ContactService.load", [parseInt(req.cid),fields],
+        function(error, data){
+
+            if(error){
+                res.json(rbmJSONResponse.errorResponse(error));
+            } else {
+                res.json(rbmJSONResponse.successResponse(data));
+            }
+
+        });
+
+
+})
+
 router.post("/search", function(req,res){
 
     var context = req.body;
@@ -212,9 +261,9 @@ router.post("/search", function(req,res){
         function(error, data){
 
         if(error){
-            res.json(rbmJSONResponse.errorResponse(error));
+            res.json({});
         } else {
-            res.json(rbmJSONResponse.successResponse(data));
+            res.json(data);
         }
 
     });

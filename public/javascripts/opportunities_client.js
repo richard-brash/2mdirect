@@ -363,16 +363,23 @@ function AppViewModel(context){
     self.updateOpportunity = function(item){
 
         var data = ko.toJS(item);
-        var url = "http://dilogr.com/app1/s/afteractionreport?email=" + data.Email + "&lastname=" + data.LastName + "&firstname=" + data.FirstName + "&opid=" + data.Id;
 
-        var win = window.open(url, '_blank');
-        if(win){
-            //Browser has allowed it to be opened
-            win.focus();
-        }else{
-            //Broswer has blocked it
-            alert('Please allow popups for this site');
-        }
+        $.get("/opportunity/afteractionul/" + self.context["appname"], function(data){
+
+            var url = data.afterActionURL + "?email=" + data.Email + "&lastname=" + data.LastName + "&firstname=" + data.FirstName + "&opid=" + data.Id;
+
+            var win = window.open(url, '_blank');
+            if(win){
+                //Browser has allowed it to be opened
+                win.focus();
+            }else{
+                //Broswer has blocked it
+                alert('Please allow popups for this site');
+            }
+
+        });
+
+
 
 
     }

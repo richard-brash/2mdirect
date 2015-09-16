@@ -20,7 +20,14 @@ function getUrlVars()
 (function(){
 
     var toMoney = function(num){
-        return '$' + (num.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,') );
+
+        if(typeof(num) == "undefined"){
+            num = 0;
+            return '$' + (num.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,') );
+        } else{
+            return '$' + (num.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,') );
+        }
+
     };
 
     var handler = function(element, valueAccessor, allBindings){
@@ -155,7 +162,13 @@ function Prospect(data){
     self._ParentName = ko.observable(data._ParentName);
     self._UltimateParentName = ko.observable(data._UltimateParentName);
     self._NumberofEmployees = ko.observable(data._NumberofEmployees);
-    self.AnnualRevenue = ko.observable((data._AnnualRevenue)?data._AnnualRevenue:data._AnnualRevenue0);
+
+    if((typeof(data._AnnualRevenue0) == "undefined") && (typeof(data._AnnualRevenue) == "undefined")){
+        self.AnnualRevenue = ko.observable(0);
+    } else {
+        self.AnnualRevenue = ko.observable((data._AnnualRevenue) ? data._AnnualRevenue : data._AnnualRevenue0);
+    }
+
     self._YearEstablished = ko.observable(data._YearEstablished);
     self._CompanyDescription = ko.observable(data._CompanyDescription);
     self._CompanyDescription = ko.observable(data._CompanyDescription);
@@ -387,9 +400,21 @@ function AppViewModel(context){
                 if (response.success) {
 
                     var mapped = $.map(response.data, function(item) {
+
                         return new Prospect(item);
                     });
                     self.contacts(mapped);
+
+                    //ko.utils.arrayForEach(response.data, function(item){
+                    //
+                    //    $.get("/prospects/byid/" + self.context["appname"] + "/" + item.Id, function(prospect){
+                    //
+                    //        self.contacts.push(new Prospect(prospect.data));
+                    //
+                    //    });
+                    //
+                    //});
+
 
                 } else {
                     toastr.error(response.error);
