@@ -15,6 +15,7 @@ var prospects = require('./routes/prospects');
 var opportunities = require('./routes/opportunities');
 var opportunity = require('./routes/opportunity');
 var refermatter = require('./routes/refermatter');
+var referralcompass = require('./routes/referralcompass');
 var infusionsoftuser = require('./routes/infusionsoftuser');
 var update = require('./routes/update');
 
@@ -43,6 +44,7 @@ app.use('/prospects', prospects);
 app.use('/opportunities', opportunities);
 app.use('/opportunity', opportunity);
 app.use('/refermatter', refermatter);
+app.use('/referralcompass', referralcompass);
 
 app.use('/infusionsoftuser', infusionsoftuser);
 app.use('/update', update);

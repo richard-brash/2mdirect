@@ -187,7 +187,7 @@ router.get("/:appname/:cid", function(req,res){
 
     query["_OwnerCID"] = req.cid;
 
-    isclient.Caller(req.appname, "DataService.query", ["Lead", 1, 0, query,[
+    isclient.Caller(req.appname, "DataService.query", ["Lead", 1000, 0, query,[
         "OpportunityTitle",
         "ContactID",
         "Id",
