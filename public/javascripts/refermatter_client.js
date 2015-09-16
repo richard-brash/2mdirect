@@ -87,18 +87,20 @@ function Opportunity(data){
 
     self.appname = ko.observable(data._OwnerName);
 
+    if(typeof(data._TeamMembers) != "undefined"){
 
-    var teammembers = JSON.parse(data._TeamMembers.replace(/&quot;/g,'"'));
+        var teammembers = JSON.parse(data._TeamMembers.replace(/&quot;/g,'"'));
 
-    var mapped = $.map(teammembers, function(o) {
+        var mapped = $.map(teammembers, function(o) {
 
-        var owner = new Owner(o);
+            var owner = new Owner(o);
 
-        return owner;
+            return owner;
 
-    });
+        });
 
-    self.TeamMembers(mapped);
+        self.TeamMembers(mapped);
+    }
 
 
     self.founddata = ko.observable(false);
@@ -186,6 +188,8 @@ function Opportunity(data){
     self.init = function(appname){
 
         self.appname(appname);
+
+
 
         $.get("/refermatter/contact/" + appname + "/" + parseInt(self.ContactID()) ,function(result){
 

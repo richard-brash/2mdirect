@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="stylesheets/bootstrap.min.css"/>
+    <link rel="stylesheet" href="stylesheets/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="stylesheets/toastr.min.css"/>
+    <link rel="stylesheet" href="stylesheets/style.css"/>
+
+</head>
+<body>
+
+<div class="container">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="pull-left">
+
+                <button data-bind="click:toggleSearch, visible: showcriteria" class="btn bg-primary">Hide Search Criteria</button>
+
+                <button data-bind="click:toggleSearch, visible: !showcriteria()" class="btn bg-primary">Show Search Criteria</button>
+            </div>
+
+            <div data-bind="visible: showcriteria" class="pull-right">
+                <button data-bind="click:dosearch" class="btn bg-primary">Search</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div data-bind="foreach: categorySections, visible: showcriteria">
+        <div  class="row">
+            <div style="margin-top:15px; border: 2px solid #6bc2f4;" class="col-sm-12">
+                <div style="background-color: #6bc2f4; font-size: 16px; padding: 5px;" data-bind="text: $data.Category().CategoryName"></div>
+                <div style="margin: 5px 0px 10px 0px;" class="row">
+
+                    <div class="col-sm-6" data-bind="foreach: Groups.slice(0,Groups().length / 2) ">
+                        <div>
+                            <input data-bind="checked:$data.checked" type="checkbox" />&nbsp;&nbsp;<label data-bind="text: $data.GroupName"></label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6" data-bind="foreach: Groups.slice(Groups().length / 2)">
+                        <div>
+                            <input data-bind="checked:$data.checked" type="checkbox" />&nbsp;&nbsp;<label data-bind="text: $data.GroupName"></label>
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <br/>
+
+    <div data-bind="visible: showcriteria" class="row">
+        <div class="col-sm-12">
+            <div class="pull-right">
+                <button data-bind="click:dosearch" class="btn bg-primary">Search</button>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-sm-12"><hr /></div>
+    </div>
+
+    <div data-bind="foreach:prospects">
+        <div class="prospect">
+            <div class="row">
+                <div class="col-sm-3">
+                    <span class="nameheader" data-bind="text: fullName"/>
+                </div>
+                <div class="col-sm-3">
+                    <img alt="" style="width: 152px; height: 32px" data-bind="attr: {src: flame}">
+                </div>
+                <div class="col-sm-6">
+                    <button class="btn btn-lg bg-primary" data-bind="click:$parent.selectProspect" data-toggle="modal" data-target="#companyDetails">View Details</button>
+                </div>
+
+            </div>
+            <br/>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div><label>Contact Id:</label> <span data-bind="text:Id"></span></div>
+                    <div><label>Job Title:</label> <span data-bind="text:JobTitle"></span></div>
+                    <div><label>Company Name:</label> <span data-bind="text:_CompanyName"></span></div>
+                    <div><label>Phone:</label> <span data-bind="text:Phone1"></span></div>
+                    <div><label>Email:</label> <span data-bind="text:Email"></span></div>
+                    <div><label>Website:</label> <span data-bind="text:Website"></span></div>
+                    <div><label>Number of Employees:</label> <span data-bind="text:_NumberofEmployees"></span></div>
+                    <div><label>Annual Revenue:</label> <span data-bind="money:AnnualRevenue"></span></div>
+                </div>
+                <div class="col-sm-6">
+
+                    <div><label>Street Address:</label> <span data-bind="text:StreetAddress1"></span></div>
+                    <div><label>City:</label> <span data-bind="text:City"></span></div>
+                    <div><label>State:</label> <span data-bind="text:State"></span></div>
+                    <div><label>Postal Code:</label> <span data-bind="text:PostalCode"></span></div>
+                    <div><label>LinkedIn:</label> <span data-bind="text:LinkedIn"></span></div>
+                    <div><label>Lead Source:</label> <span data-bind="text:Leadsource"></span></div>
+                    <div><label>Last Updated:</label> <span data-bind="text:moment(LastUpdated()).format('M/D/YYYY h:mm a')"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br/>
+
+
+
+</div>
+
+<!-- Company Detail -->
+
+
+<script src="javascripts/jquery-2.1.4.min.js"></script>
+<script src="javascripts/bootstrap.min.js"></script>
+<script src="javascripts/knockout-3.3.0.js"></script>
+<script src="javascripts/moment.js"></script>
+<script src="javascripts/toastr.min.js"></script>
+<script src="javascripts/referralcompass_client.js"></script>
+</body>
+
+</html>

@@ -39,14 +39,19 @@ function Config(){
             UserId:1,
             customFields: ["_AnnualRevenue0"],
             TeamMemberTemplate: 3777,
-            NewOwnerTemplate: 3779
+            NewOwnerTemplate: 3779,
+            compassCategories: [51,53,55,57,59,61,63,65,67,69,71]
         },
         {
             name:"AEG",
             AppName:"je230",
             ApiKey:"78fe52c4c1c84254d80bebcaa45a5c4d",
             UserId:1,
-            customFields: ["_AnnualRevenue"]
+            customFields: ["_AnnualRevenue"],
+            TeamMemberTemplate: 3663,
+            NewOwnerTemplate: 3661,
+            compassCategories: [39,41,43,45,47,49,51,53,55,57,59,61]
+
         },
         {
             name:"Whittaker",

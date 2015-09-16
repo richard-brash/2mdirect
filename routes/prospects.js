@@ -13,9 +13,9 @@ var rbmJSONResponse = require("../lib/rbmJSONResponse");
 
 var router = express.Router();
 
-router.param('appName', function(req, res, next, appName){
+router.param('appname', function(req, res, next, appname){
 
-    req.appName = appName;
+    req.appname = appname;
     next();
 
 });
@@ -25,6 +25,14 @@ router.param('cid', function(req, res, next, cid){
     next();
 
 });
+
+router.param('gid', function(req, res, next, gid){
+
+    req.gid = gid;
+    next();
+
+});
+
 
 router.param('configId', function(req, res, next, configId){
 
@@ -50,17 +58,21 @@ router.param('userid', function(req, res, next, userid){
 
 router.use(function (req, res, next) {
     var context = req.body;
+    if(context.name){
+        isclient.Caller(context.appname, "ContactService.load", [context.cid,["FirstName", "LastName", "Email","Id", "CompanyID"]], function(error, contact){
 
-    isclient.Caller(context.appname, "ContactService.load", [context.cid,["FirstName", "LastName", "Email","Id", "CompanyID"]], function(error, contact){
+            if(error){
+                req.user = null;
+            } else {
+                req.user = contact;
+            }
 
-        if(error){
-            req.user = null;
-        } else {
-            req.user = contact;
-        }
+            next();
+        });
 
+    } else {
         next();
-    });
+    }
 
 
 });
@@ -104,14 +116,47 @@ router.post("/notes", function(req,res){
 
 });
 
-router.get("/:appName/:userid", function(req,res){
+router.get("/:appname/:userid", function(req,res){
 
-    isclient.Caller(req.appName, "DataService.load", ["Contact", req.userid,["FirstName", "LastName", "Email"]], function(error, user){
+    isclient.Caller(req.appname, "DataService.load", ["Contact", req.userid,["FirstName", "LastName", "Email"]], function(error, user){
 
         if(error || !user){
             res.json(rbmJSONResponse.errorResponse(error));
         }else{
             res.json(user);
+        }
+    });
+
+});
+
+router.get("/withtag/:appname/:cid/:gid", function(req,res){
+
+    isclient.Caller(req.appname, "ContactService.load", [req.cid,["CompanyID"]], function(error, user) {
+
+        if (error || !user) {
+            res.json(rbmJSONResponse.errorResponse(error));
+        } else {
+
+            var query = {Groups: "%" + req.gid + "%"};
+
+            isclient.Caller(req.appname, "DataService.query", ["Contact", 1000, 0, query,
+
+                [
+                    "Id",
+                    "LastName",
+                    "_CompanyName",
+                    "CompanyID"
+                ]
+
+
+            ], function (error, data) {
+
+                if (error) {
+                    res.json(rbmJSONResponse.errorResponse(error));
+                } else {
+                    res.json(rbmJSONResponse.successResponse(data));
+                }
+            });
         }
     });
 
@@ -260,17 +305,17 @@ router.post("/savedsearch", function(req,res){
     });
 });
 
-router.get("/:appName/:cid/:configId/:page", function(req,res){
+router.get("/:appname/:cid/:configId/:page", function(req,res){
 
     //  Get the contact
-    isclient.Caller(req.appName, "ContactService.load", [req.cid,["FirstName", "LastName", "Email","Id", "CompanyID"]], function(error, contact){
+    isclient.Caller(req.appname, "ContactService.load", [req.cid,["FirstName", "LastName", "Email","Id", "CompanyID"]], function(error, contact){
 
         if(error || !contact){
             res.json(rbmJSONResponse.errorResponse(error));
         }else{
 
             // Get the companyConfig
-            isclient.Caller(req.appName, "DataService.load", ["Company", contact.CompanyID, ["_SendGridConfig"]], function(error, company){
+            isclient.Caller(req.appname, "DataService.load", ["Company", contact.CompanyID, ["_SendGridConfig"]], function(error, company){
                 if(error || !company){
                     res.json(rbmJSONResponse.errorResponse(error));
                 }else{
@@ -286,7 +331,7 @@ router.get("/:appName/:cid/:configId/:page", function(req,res){
                     }
 
                     //  This is where we will get the data
-                    isclient.Caller(req.appName, "SearchService.getSavedSearchResultsAllFields", [parseInt(savedSearchID), parseInt(userID), parseInt(req.page)], function(error, reportData){
+                    isclient.Caller(req.appname, "SearchService.getSavedSearchResultsAllFields", [parseInt(savedSearchID), parseInt(userID), parseInt(req.page)], function(error, reportData){
 
                         if(error || !reportData){
                             res.json(rbmJSONResponse.errorResponse(error));
