@@ -19,7 +19,14 @@ function getUrlVars()
 (function(){
 
     var toMoney = function(num){
-        return '$' + (num.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,') );
+
+        if(typeof(num) == "undefined"){
+            num = 0;
+            return '$' + (num.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,') );
+        } else{
+            return '$' + (num.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,') );
+        }
+
     };
 
     var handler = function(element, valueAccessor, allBindings){
@@ -68,6 +75,14 @@ function CategorySection(data){
     self.Category = ko.observable(new Category(data.Category));
 
     self.Groups = ko.observableArray([]);
+
+    self.setAll = function(item){
+
+        ko.utils.arrayForEach(item.Groups(), function(group){
+            group.checked(!group.checked());
+        });
+
+    };
 
     var mapped = $.map(data.Groups, function(item) {
 
@@ -193,6 +208,7 @@ function Prospect(data){
     self.LinkedIn = ko.observable(data.LinkedIn);
     self._IndustryGroupName = ko.observable(data._IndustryGroupName);
     self._NAICS = ko.observable(data._NAICS);
+    self.groupName = ko.observable(data.groupName);
 
 
     self.fullName = ko.computed(function() {
@@ -238,12 +254,13 @@ function AppViewModel(context){
 
     self.prospects = ko.observableArray([]);
     self.selectedProspect = ko.observable();
+
     self.notes = ko.observableArray([]);
     self.notesLoadMessage = ko.observable("");
 
 
     self.categorySections = ko.observableArray([]);
-    self.showcriteria = ko.observable(false);
+    self.showcriteria = ko.observable(true);
 
     self.toggleSearch = function(){
         self.showcriteria(!self.showcriteria());
@@ -259,14 +276,29 @@ function AppViewModel(context){
     self.dosearch = function(){
 
         self.showcriteria(false);
+        self.prospects.removeAll();
+
         ko.utils.arrayForEach(self.categorySections(), function(categorySection){
 
             ko.utils.arrayForEach(categorySection.Groups(), function(group){
 
                 if(group.checked()){
 
-                    $.get("prospects/withtag/" + self.context["appname"] + "/" + parseInt(self.context["cid"]) + "/" + parseInt(group.Id()), function(data){
-                        console.log(ko.toJS(data));
+                    $.get("prospects/withtag/" + self.context["appname"] + "/" + parseInt(self.context["cid"]) + "/" + parseInt(group.Id()), function(response){
+
+                        if (response.success) {
+
+                            var mapped = $.map(response.data, function(item) {
+
+                                var prospect = new Prospect(item);
+                                prospect.groupName(categorySection.Category().CategoryName() + "->" + group.GroupName());
+                                self.prospects.push(prospect);
+                                return null;
+                            });
+
+                        } else {
+                            toastr.error(response.error);
+                        }
 
                     })
 
@@ -280,7 +312,57 @@ function AppViewModel(context){
 
     };
 
+    self.selectProspect = function(item){
+        self.selectedProspect(item);
+        self.getNotes(item);
+    }
 
+    self.getNotes = function(item){
+
+        self.notes([]);
+
+        self.notesLoadMessage("Loading notes...");
+
+        var data = {
+            appname : self.context["appname"],
+            cid: item.Id()
+        };
+
+        var payload = {
+            url: "/prospects/notes",
+            method: "POST",
+            data: data,
+            success: function(response) {
+
+                if (response.success) {
+
+                    var mapped = $.map(response.data, function(item) {
+
+                        var note = new Note(item);
+                        note.init(self.context["appname"]);
+                        return note;
+                    });
+
+                    self.notes(mapped);
+
+                    if(self.notes().length < 1){
+                        self.notesLoadMessage("No notes found...");
+                    }
+
+                } else {
+                    toastr.error(response.error);
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                toastr.error(errorThrown);
+                console.log(jqXHR);
+            }
+        };
+
+        $.ajax(payload);
+
+
+    }
 
     self.getCategorySections = function() {
 
