@@ -137,19 +137,46 @@ router.get("/withtag/:appname/:cid/:gid", function(req,res){
             res.json(rbmJSONResponse.errorResponse(error));
         } else {
 
-            var query = {Groups: "%" + req.gid + "%"};
 
-            isclient.Caller(req.appname, "DataService.query", ["Contact", 1000, 0, query,
+            var customFields = Config.ISConfig(req.appname).customFields;
 
-                [
-                    "Id",
-                    "LastName",
-                    "_CompanyName",
-                    "CompanyID"
-                ]
+            var askFields =         [
+                "Id",
+                "Company",
+                "FirstName",
+                "LastName",
+                "Email",
+                "JobTitle",
+                "Phone1",
+                "Website",
+                "LastUpdated",
+                "StreetAddress1",
+                "StreetAddress2",
+                "City",
+                "State",
+                "PostalCode",
+                "Leadsource",
+                "_CompanyName",
+                "_EntityType",
+                "_ParentName",
+                "_UltimateParentName",
+                "_NumberofEmployees",
+//        "_AnnualRevenue0",
+                "_YearEstablished",
+                "_CompanyDescription",
+                "_NAICS",
+                "_IndustryGroupName"
 
+            ];
 
-            ], function (error, data) {
+            var fields = askFields.concat(customFields);
+
+            var query = {
+                Groups: "%" + req.gid + "%",
+                CompanyID: user.CompanyID
+            };
+
+            isclient.Caller(req.appname, "DataService.query", ["Contact", 1000, 0, query,fields], function (error, data) {
 
                 if (error) {
                     res.json(rbmJSONResponse.errorResponse(error));
