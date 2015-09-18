@@ -288,9 +288,9 @@ router.post("/search", function(req,res){
         function(error, data){
 
         if(error){
-            res.json({});
+            res.json(error);
         } else {
-            res.json(data);
+            res.json(rbmJSONResponse.successResponse(data));
         }
 
     });
