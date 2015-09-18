@@ -39,7 +39,6 @@ router.post("/afteraction", function(req,res){
         isclient.Caller(context.appname, "ContactService.load", [context.cid, [
             "_MeetingNotes",
             "_SalesStageAppointment",
-            "_SalesStageProposal",
             "_SalesStageLost",
             "_NextSteps",
             "_OpportunityId",
@@ -50,11 +49,12 @@ router.post("/afteraction", function(req,res){
             if(!error && details){
 
                 //  Meeting 1 is the default opportunity stage so, if this is set then the opportunity was lost
+                details._SalesStageAppointment = details._SalesStageAppointment.replace(/(\r\n|\n|\r)/gm,"");
                 var stageName = (details._SalesStageAppointment == "Meeting 1") ? details._SalesStageLost : details._SalesStageAppointment;
                 stageName = stageName.replace(/(\r\n|\n|\r)/gm,"");
 
                 var query = {
-                    StageName:stageName
+                    StageName: stageName + "%"
                 }
 
                 //  Find the proper StageId
