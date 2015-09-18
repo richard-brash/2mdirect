@@ -6,6 +6,7 @@
 var express = require('express');
 var Config = require('../config');
 var isclient = require('../lib/InfusionsoftApiClient');
+var moment = require('moment');
 var rbmJSONResponse = require("../lib/rbmJSONResponse");
 
 var router = express.Router();
@@ -27,6 +28,94 @@ router.use(function (req, res, next) {
     next();
 
 });
+
+router.post("/afteraction", function(req,res){
+
+    if(req.context){
+        var context = req.context;
+        var config = req.config;
+
+        // Get the salient data from the Contact record.
+        isclient.Caller(context.appname, "ContactService.load", [context.cid, [
+            "_MeetingNotes",
+            "_SalesStageAppointment",
+            "_SalesStageProposal",
+            "_SalesStageLost",
+            "_NextSteps",
+            "_OpportunityId",
+            "_NextAppointmentDate"
+
+        ]], function(error, details){
+
+            if(!error && details){
+
+                //  Meeting 1 is the default opportunity stage so, if this is set then the opportunity was lost
+                var stageName = (details._SalesStageAppointment == "Meeting 1") ? details._SalesStageLost : details._SalesStageAppointment;
+                stageName = stageName.replace(/(\r\n|\n|\r)/gm,"");
+
+                var query = {
+                    StageName:stageName
+                }
+
+                //  Find the proper StageId
+                isclient.Caller(context.appname, "DataService.query",["Stage", 1,0,query, ["Id"]],function(error, stage){
+
+                    if(!error && stage){
+
+                        var opportunity = {
+                            NextActionDate:details._NextAppointmentDate,
+                            NextActionNotes:details._NextSteps,
+                            StageID:stage[0].Id
+                        }
+
+                        //  Update the opportunity record
+                        isclient.Caller(context.appname, "DataService.update",["Lead", details._OpportunityId, opportunity],function(error, opupdate){
+
+                            if(!error && opupdate){
+
+                                //  Finally, add the note to the contact record
+                                var note = {
+                                    ContactId : context.cid,
+                                    ActionDescription : "After Action Note",
+                                    ActionType : "Appointment",
+                                    CreationNotes: details._MeetingNotes
+
+                            };
+
+                                isclient.Caller(context.appname, "DataService.add", ["ContactAction", note], function(error, noteadd){
+                                    if(!error && noteadd){
+                                        res.json(error);
+                                    } else{
+                                        res.json({});
+                                    }
+                                });
+
+                            } else {
+                                res.json(error);
+                            }
+
+                        });
+
+
+                    } else {
+                        res.json(error);
+                    }
+
+
+                })
+
+            } else {
+                res.json(error);
+            }
+
+        });
+
+    } else {
+        res.json({message:"DENIED"});
+    }
+
+
+})
 
 router.post("/", function(req,res){
 

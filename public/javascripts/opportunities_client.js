@@ -379,8 +379,6 @@ function AppViewModel(context){
 
         });
 
-
-
     }
 
     self.getContacts = function(){
