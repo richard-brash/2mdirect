@@ -141,7 +141,6 @@ router.get("/contact/:appname/:cid", function(req,res){
 });
 
 
-
 router.get("/stage/:appname/:stageid", function(req,res){
 
     isclient.Caller(req.appname, "DataService.load", ["Stage", req.stageid,["StageName",]], function(error, data){
