@@ -12,6 +12,20 @@ var rbmJSONResponse = require("../lib/rbmJSONResponse");
 
 var router = express.Router();
 
+router.param('appname', function(req, res, next, appname){
+
+    req.appname = appname;
+    next();
+
+});
+
+router.param('rbmkey', function(req, res, next, rbmkey){
+
+    req.rbmkey = rbmkey;
+    next();
+
+});
+
 router.use(function (req, res, next) {
 
 
@@ -29,6 +43,94 @@ router.use(function (req, res, next) {
     next();
 
 });
+
+
+router.get("/notifyappointments/:appname/:rbmkey", function(req,res){
+
+
+    var config = Config.ISConfig(req.appname);
+
+    var allowed = false;
+
+    if(config && req.rbmkey == config.RBMKey){
+        allowed  = true;
+    }
+
+    if(allowed){
+
+        var now = moment();
+
+        var query = {
+            NextActionDate : now.format("YYYY-MM-DD HH") + "%"
+        }
+
+
+        isclient.Caller(req.appname, "DataService.query", ["Lead", 1000, 0, query,["NextActionDate", "_OwnerName", "_OwnerEmail", "_OwnerCID", "Id", "ContactID"]],function(error, opportunities){
+
+            for(var i = 0; i < opportunities.length; i++){
+
+                var opportunity = opportunities[i];
+                opportunity.NextActionDate = moment(opportunity.NextActionDate).format("LLLL");
+
+                //  Get the Contact record
+                isclient.Caller(req.appname, "ContactService.load",[opportunity.ContactID,["Email", "FirstName", "LastName", "_CompanyName", "CompanyID"]],function(error, contact){
+
+                    var afterActionURL = Config.ISConfig(req.appname).afterActionURL;
+                    var url = afterActionURL + "?email=" + contact.Email + "&lastname=" + contact.LastName + "&firstname=" + contact.FirstName + "&opid=" + opportunity.Id;
+
+                    //  Set up the email view
+                    var view = {
+                        Opportunity:{
+                            OwnerName:opportunity._OwnerName,
+                            CompanyName:contact._CompanyName,
+                            FirstName:contact.FirstName,
+                            LastName:contact.LastName,
+                            NextActionDate:opportunity.NextActionDate,
+                            Email:contact.Email,
+                            url: url},
+                        Company:{
+                            HTMLCanSpamAddressBlock:""
+                        }
+                    };
+
+                    isclient.Caller(req.appname, "DataService.load", ["Company", contact.CompanyID, ["_SendGridConfig"]], function(error, company){
+                        if(error || !company){
+                            res.json(rbmJSONResponse.errorResponse(error));
+                        }else {
+
+                            var companyConfig = JSON.parse(company._SendGridConfig.replace(/&quot;/g, '"'));
+                            var emailTemplateId = Config.ISConfig(req.appname).AfterActionTemplate;
+
+                            sendGridClient.SendEmail(req.appname, companyConfig.sendGrid, emailTemplateId, opportunity._OwnerEmail, opportunity._OwnerEmail, view, function(error, result){
+
+                                if(error){
+
+                                    res.json(rbmJSONResponse.errorResponse(error));
+                                } else {
+                                    res.json(rbmJSONResponse.successResponse(result));
+                                }
+
+                            })
+
+                        }
+
+                    });
+
+
+
+                });
+
+
+            }
+
+        });
+
+    } else {
+        res.json({message:"DENIED"});
+    }
+
+
+})
 
 router.post("/notifyappointments", function(req,res){
 
@@ -115,9 +217,6 @@ router.post("/notifyappointments", function(req,res){
 
 
 })
-
-
-
 
 router.post("/afteraction", function(req,res){
 
