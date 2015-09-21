@@ -29,32 +29,98 @@ router.use(function (req, res, next) {
 
 });
 
+router.get("/wtf", function(req,res){
+
+
+        var query = {
+            GroupId : "%"
+        };
+
+        var fields = [
+            "DataType",
+            "DefaultValue",
+            "FormId",
+            "GroupId",
+            "Id",
+            "Label",
+            "ListRows",
+            "Name",
+            "Values"
+        ]
+
+        var result = {};
+
+        isclient.Caller("je230", "DataService.query", ["DataFormField", 1000, 0, query, fields], function(error, DataFormFields){
+            result["DataFormFields"] = DataFormFields;
+
+
+            var query = {
+                TabId : 9
+            };
+
+            var fields = [
+                "TabId",
+                "Id",
+                "Name"
+            ]
+
+            isclient.Caller("je230", "DataService.query", ["DataFormGroup", 1000, 0, query, fields], function(error, DataFormGroups){
+                result["DataFormGroups"] = DataFormGroups;
+
+                var query = {
+                    FormId : -1
+                };
+
+                var fields = [
+                    "FormId",
+                    "Id",
+                    "TabName"
+                ]
+
+                isclient.Caller("je230", "DataService.query", ["DataFormTab", 1000, 0, query, fields], function(error, DataFormTabs){
+                    result["DataFormTabs"] = DataFormTabs;
+
+                    res.json(result);
+                });
+
+            });
+
+        });
+
+
+
+})
+
 router.post("/afteraction", function(req,res){
 
     if(req.context){
         var context = req.context;
         var config = req.config;
 
-        // Get the salient data from the Contact record.
-        isclient.Caller(context.appname, "ContactService.load", [context.cid, [
+
+        var customFields = Config.ISConfig(context.appname).customFields;
+
+        var askFields =         [
             "_MeetingNotes",
             "_SalesStageAppointment",
             "_SalesStageLost",
             "_NextSteps",
-            "_OpportunityId",
-            "_NextAppointmentDate"
+            "_OpportunityId"
+        ];
 
-        ]], function(error, details){
+        var fields = askFields.concat(customFields);
+
+
+        // Get the salient data from the Contact record.
+        isclient.Caller(context.appname, "ContactService.load", [context.cid,fields], function(error, details){
 
             if(!error && details){
 
                 //  Meeting 1 is the default opportunity stage so, if this is set then the opportunity was lost
                 details._SalesStageAppointment = details._SalesStageAppointment.replace(/(\r\n|\n|\r)/gm,"");
-                var stageName = (details._SalesStageAppointment == "Meeting 1") ? details._SalesStageLost : details._SalesStageAppointment;
-                stageName = stageName.replace(/(\r\n|\n|\r)/gm,"");
 
                 var query = {
-                    StageName: stageName + "%"
+                    StageName: details._SalesStageAppointment + "%"
                 }
 
                 //  Find the proper StageId
@@ -62,10 +128,14 @@ router.post("/afteraction", function(req,res){
 
                     if(!error && stage){
 
+                        var nextSteps = details._NextSteps;
+
+
                         var opportunity = {
-                            NextActionDate:details._NextAppointmentDate,
+                            NextActionDate:(context.appname == "je230") ? new Date(details._DateOfNextAppointment.replace(/(\r\n|\n|\r)/gm,"")): details._NextAppointmentDate,
                             NextActionNotes:details._NextSteps,
-                            StageID:stage[0].Id
+                            StageID:stage[0].Id,
+                            _Reason:(details._SalesStageAppointment == "Lost") ? details._SalesStageLost : ""
                         }
 
                         //  Update the opportunity record
