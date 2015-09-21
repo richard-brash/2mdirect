@@ -34,76 +34,78 @@ router.post("/notifyappointments", function(req,res){
 
     if(req.context){
 
-        var context = req.context;
-        var config = req.config;
+        res.json({message:"HERE WE ARE"});
+        //var context = req.context;
+        //var config = req.config;
+        //
+        //
+        //var now = moment();
+        //
+        //var query = {
+        //    NextActionDate : now.format("YYYY-MM-DD HH") + "%"
+        //}
+        //
+        //
+        //isclient.Caller(context.appname, "DataService.query", ["Lead", 1000, 0, query,["NextActionDate", "_OwnerName", "_OwnerEmail", "_OwnerCID", "Id", "ContactID"]],function(error, opportunities){
+        //
+        //    for(var i = 0; i < opportunities.length; i++){
+        //
+        //        var opportunity = opportunities[i];
+        //        opportunity.NextActionDate = moment(opportunity.NextActionDate).format("LLLL");
+        //
+        //        //  Get the Contact record
+        //        isclient.Caller(context.appname, "ContactService.load",[opportunity.ContactID,["Email", "FirstName", "LastName", "_CompanyName", "CompanyID"]],function(error, contact){
+        //
+        //            var afterActionURL = Config.ISConfig(context.appname).afterActionURL;
+        //            var url = afterActionURL + "?email=" + contact.Email + "&lastname=" + contact.LastName + "&firstname=" + contact.FirstName + "&opid=" + opportunity.Id;
+        //
+        //            //  Set up the email view
+        //            var view = {
+        //                Opportunity:{
+        //                    OwnerName:opportunity._OwnerName,
+        //                    CompanyName:contact._CompanyName,
+        //                    FirstName:contact.FirstName,
+        //                    LastName:contact.LastName,
+        //                    NextActionDate:opportunity.NextActionDate,
+        //                    Email:contact.Email,
+        //                    url: url},
+        //                Company:{
+        //                    HTMLCanSpamAddressBlock:""
+        //                }
+        //            };
+        //
+        //            isclient.Caller(context.appname, "DataService.load", ["Company", contact.CompanyID, ["_SendGridConfig"]], function(error, company){
+        //                if(error || !company){
+        //                    res.json(rbmJSONResponse.errorResponse(error));
+        //                }else {
+        //
+        //                    var companyConfig = JSON.parse(company._SendGridConfig.replace(/&quot;/g, '"'));
+        //                    var emailTemplateId = Config.ISConfig(context.appname).AfterActionTemplate;
+        //
+        //                    sendGridClient.SendEmail(context.appname, companyConfig.sendGrid, emailTemplateId, opportunity._OwnerEmail, opportunity._OwnerEmail, view, function(error, result){
+        //
+        //                        if(error){
+        //
+        //                            res.json(rbmJSONResponse.errorResponse(error));
+        //                        } else {
+        //                            res.json(rbmJSONResponse.successResponse(result));
+        //                        }
+        //
+        //                    })
+        //
+        //                }
+        //
+        //            });
+        //
+        //
+        //
+        //        });
+        //
+        //
+        //    }
+        //
+        //});
 
-
-        var now = moment();
-
-        var query = {
-            NextActionDate : now.format("YYYY-MM-DD HH") + "%"
-        }
-
-
-        isclient.Caller(context.appname, "DataService.query", ["Lead", 1000, 0, query,["NextActionDate", "_OwnerName", "_OwnerEmail", "_OwnerCID", "Id", "ContactID"]],function(error, opportunities){
-
-            for(var i = 0; i < opportunities.length; i++){
-
-                var opportunity = opportunities[i];
-                opportunity.NextActionDate = moment(opportunity.NextActionDate).format("LLLL");
-
-                //  Get the Contact record
-                isclient.Caller(context.appname, "ContactService.load",[opportunity.ContactID,["Email", "FirstName", "LastName", "_CompanyName", "CompanyID"]],function(error, contact){
-
-                    var afterActionURL = Config.ISConfig(context.appname).afterActionURL;
-                    var url = afterActionURL + "?email=" + contact.Email + "&lastname=" + contact.LastName + "&firstname=" + contact.FirstName + "&opid=" + opportunity.Id;
-
-                    //  Set up the email view
-                    var view = {
-                        Opportunity:{
-                            OwnerName:opportunity._OwnerName,
-                            CompanyName:contact._CompanyName,
-                            FirstName:contact.FirstName,
-                            LastName:contact.LastName,
-                            NextActionDate:opportunity.NextActionDate,
-                            Email:contact.Email,
-                            url: url},
-                        Company:{
-                            HTMLCanSpamAddressBlock:""
-                        }
-                    };
-
-                    isclient.Caller(context.appname, "DataService.load", ["Company", contact.CompanyID, ["_SendGridConfig"]], function(error, company){
-                        if(error || !company){
-                            res.json(rbmJSONResponse.errorResponse(error));
-                        }else {
-
-                            var companyConfig = JSON.parse(company._SendGridConfig.replace(/&quot;/g, '"'));
-                            var emailTemplateId = Config.ISConfig(context.appname).AfterActionTemplate;
-
-                            sendGridClient.SendEmail(context.appname, companyConfig.sendGrid, emailTemplateId, opportunity._OwnerEmail, opportunity._OwnerEmail, view, function(error, result){
-
-                                if(error){
-
-                                    res.json(rbmJSONResponse.errorResponse(error));
-                                } else {
-                                    res.json(rbmJSONResponse.successResponse(result));
-                                }
-
-                            })
-
-                        }
-
-                    });
-
-
-
-                });
-
-
-            }
-
-        });
     } else {
         res.json({message:"DENIED"});
     }
