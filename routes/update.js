@@ -7,7 +7,8 @@ var express = require('express');
 var Config = require('../config');
 var isclient = require('../lib/InfusionsoftApiClient');
 var sendGridClient = require('../lib/SendGridClient');
-var moment = require('moment');
+//var moment = require('moment');
+var moment = require('moment-timezone');
 var rbmJSONResponse = require("../lib/rbmJSONResponse");
 
 var router = express.Router();
@@ -58,7 +59,7 @@ router.get("/notifyappointments/:appname/:rbmkey", function(req,res){
 
     if(allowed){
 
-        var now = moment();
+        var now = moment.tz("America/New_York");
 
         var query = {
             NextActionDate : now.format("YYYY-MM-DD HH") + "%"
