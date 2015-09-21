@@ -6,6 +6,7 @@
 var express = require('express');
 var Config = require('../config');
 var isclient = require('../lib/InfusionsoftApiClient');
+var sendGridClient = require('../lib/SendGridClient');
 var moment = require('moment');
 var rbmJSONResponse = require("../lib/rbmJSONResponse");
 
@@ -29,67 +30,92 @@ router.use(function (req, res, next) {
 
 });
 
-router.get("/wtf", function(req,res){
+router.post("/notifyappointments", function(req,res){
 
+    if(req.context){
+
+        var context = req.context;
+        var config = req.config;
+
+
+        var now = moment();
 
         var query = {
-            GroupId : "%"
-        };
-
-        var fields = [
-            "DataType",
-            "DefaultValue",
-            "FormId",
-            "GroupId",
-            "Id",
-            "Label",
-            "ListRows",
-            "Name",
-            "Values"
-        ]
-
-        var result = {};
-
-        isclient.Caller("je230", "DataService.query", ["DataFormField", 1000, 0, query, fields], function(error, DataFormFields){
-            result["DataFormFields"] = DataFormFields;
+            NextActionDate : now.format("YYYY-MM-DD HH") + "%"
+        }
 
 
-            var query = {
-                TabId : 9
-            };
+        isclient.Caller(context.appname, "DataService.query", ["Lead", 1000, 0, query,["NextActionDate", "_OwnerName", "_OwnerEmail", "_OwnerCID", "Id", "ContactID"]],function(error, opportunities){
 
-            var fields = [
-                "TabId",
-                "Id",
-                "Name"
-            ]
+            for(var i = 0; i < opportunities.length; i++){
 
-            isclient.Caller("je230", "DataService.query", ["DataFormGroup", 1000, 0, query, fields], function(error, DataFormGroups){
-                result["DataFormGroups"] = DataFormGroups;
+                var opportunity = opportunities[i];
+                opportunity.NextActionDate = moment(opportunity.NextActionDate).format("LLLL");
 
-                var query = {
-                    FormId : -1
-                };
+                //  Get the Contact record
+                isclient.Caller(context.appname, "ContactService.load",[opportunity.ContactID,["Email", "FirstName", "LastName", "_CompanyName", "CompanyID"]],function(error, contact){
 
-                var fields = [
-                    "FormId",
-                    "Id",
-                    "TabName"
-                ]
+                    var afterActionURL = Config.ISConfig(context.appname).afterActionURL;
+                    var url = afterActionURL + "?email=" + contact.Email + "&lastname=" + contact.LastName + "&firstname=" + contact.FirstName + "&opid=" + opportunity.Id;
 
-                isclient.Caller("je230", "DataService.query", ["DataFormTab", 1000, 0, query, fields], function(error, DataFormTabs){
-                    result["DataFormTabs"] = DataFormTabs;
+                    //  Set up the email view
+                    var view = {
+                        Opportunity:{
+                            OwnerName:opportunity._OwnerName,
+                            CompanyName:contact._CompanyName,
+                            FirstName:contact.FirstName,
+                            LastName:contact.LastName,
+                            NextActionDate:opportunity.NextActionDate,
+                            Email:contact.Email,
+                            url: url},
+                        Company:{
+                            HTMLCanSpamAddressBlock:""
+                        }
+                    };
 
-                    res.json(result);
+                    isclient.Caller(context.appname, "DataService.load", ["Company", contact.CompanyID, ["_SendGridConfig"]], function(error, company){
+                        if(error || !company){
+                            res.json(rbmJSONResponse.errorResponse(error));
+                        }else {
+
+                            var companyConfig = JSON.parse(company._SendGridConfig.replace(/&quot;/g, '"'));
+                            var emailTemplateId = Config.ISConfig(context.appname).AfterActionTemplate;
+
+                            sendGridClient.SendEmail(context.appname, companyConfig.sendGrid, emailTemplateId, opportunity._OwnerEmail, opportunity._OwnerEmail, view, function(error, result){
+
+                                if(error){
+
+                                    res.json(rbmJSONResponse.errorResponse(error));
+                                } else {
+                                    res.json(rbmJSONResponse.successResponse(result));
+                                }
+
+                            })
+
+                        }
+
+                    });
+
+
+
                 });
 
-            });
+
+            }
 
         });
+    } else {
+        res.json({message:"DENIED"});
+    }
+
+
 
 
 
 })
+
+
+
 
 router.post("/afteraction", function(req,res){
 

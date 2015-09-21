@@ -46,6 +46,7 @@ function Config(){
             afterActionURL: "http://dilogr.com/app1/s/afteractionreport",
             TeamMemberTemplate: 3777,
             NewOwnerTemplate: 3779,
+            AfterActionTemplate:3781,
             compassCategories: [51,53,55,57,59,61,63,65,67,69,71]
         },
         {
@@ -58,6 +59,7 @@ function Config(){
             afterActionURL: " http://dilogr.com/app1/s/afteractionje230",
             TeamMemberTemplate: 3663,
             NewOwnerTemplate: 3661,
+            AfterActionTemplate:3667,
             compassCategories: [39,41,43,45,47,49,51,53,55,57,59,61]
 
         },
