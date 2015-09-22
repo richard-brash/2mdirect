@@ -88,6 +88,30 @@ router.get("/", function(req,res){
 
 })
 
+router.post("/opportunity", function(req,res){
+    var context = req.body;
+
+    var opportunity = {
+        ContactID: context.ContactID,
+        OpportunityTitle: context.OpportunityTitle,
+        _CompanyID: context._CompanyID,
+        NextActionDate: context.NextActionDate,
+        NextActionNotes: context.NextActionNotes,
+        _OwnerCID: context._OwnerCID,
+        _OwnerName: context._OwnerName,
+        _OwnerEmail: context._OwnerEmail
+    }
+
+    isclient.Caller(context.appname, "DataService.add", ["Lead", opportunity],function(error, result){
+        if(error){
+            res.json(rbmJSONResponse.errorResponse(error));
+        } else {
+            res.json(rbmJSONResponse.successResponse(result));
+        }
+    })
+
+})
+
 router.post("/notes", function(req,res){
 
     var context = req.body;
@@ -196,6 +220,7 @@ router.get("/byid/:appname/:cid", function(req,res){
     var askFields =         [
         "Id",
         "Company",
+        "CompanyID",
         "FirstName",
         "LastName",
         "Email",

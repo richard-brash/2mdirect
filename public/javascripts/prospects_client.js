@@ -50,11 +50,63 @@ function getUrlVars()
     };
 })();
 
+ko.bindingHandlers.datepicker = {
+    init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        //initialize datepicker with some optional options
+        var options = {
+            format: 'DD/MM/YYYY HH:mm',
+            defaultDate: valueAccessor()()
+        };
+
+        if (allBindingsAccessor() !== undefined) {
+            if (allBindingsAccessor().datepickerOptions !== undefined) {
+                options.format = allBindingsAccessor().datepickerOptions.format !== undefined ? allBindingsAccessor().datepickerOptions.format : options.format;
+            }
+        }
+
+        $(element).datetimepicker(options);
+
+        //when a user changes the date, update the view model
+        ko.utils.registerEventHandler(element, "dp.change", function (event) {
+            var value = valueAccessor();
+            if (ko.isObservable(value)) {
+                value(event.date);
+            }
+        });
+
+        var defaultVal = $(element).val();
+        var value = valueAccessor();
+        value(moment(defaultVal, options.format));
+    },
+    update: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        var thisFormat = 'MM/DD/YYYY HH:mm';
+
+        if (allBindingsAccessor() !== undefined) {
+            if (allBindingsAccessor().datepickerOptions !== undefined) {
+                thisFormat = allBindingsAccessor().datepickerOptions.format !== undefined ? allBindingsAccessor().datepickerOptions.format : thisFormat;
+            }
+        }
+
+        var value = valueAccessor();
+        var unwrapped = ko.utils.unwrapObservable(value());
+
+        if (unwrapped === undefined || unwrapped === null) {
+            element.value = new moment(new Date());
+            console.log("undefined");
+        } else {
+            element.value = unwrapped.format(thisFormat);
+        }
+    }
+};
+
 $(document).ready(function(){
 
-    ko.applyBindings(new AppViewModel(getUrlVars()));
+    var vm = new AppViewModel(getUrlVars());
+    ko.applyBindings(vm);
 
-})
+});
+
+
 
 function Note(data){
     var self = this;
@@ -138,12 +190,139 @@ function Note(data){
 
 }
 
+function Owner(data){
+
+    var self = this;
+
+    self.name = ko.observable((typeof(data.FirstName) == "undefined") ? data.name : data.FirstName + " " + data.LastName);
+    self.email = ko.observable((typeof(data.Email) == "undefined") ? data.email : data.Email);
+    self.Id = ko.observable(data.Id);
+    self.added = ko.observable(false);
+
+}
+
+function Opportunity(data, context){
+    var self = this;
+
+    console.log(data);
+    self.context =  context;
+    self.OpportunityTitle = ko.observable(data.OpportunityTitle);
+    self.ContactID = ko.observable(data.ContactID);
+
+    self._CompanyID = ko.observable(data._CompanyID);
+    self.NextActionDate = ko.observable(data.NextActionDate);
+
+    self.NextActionNotes = ko.observable(data.NextActionNotes);
+    self.noteValidationMessage = ko.observable("You must enter something into this note field");
+    self.showNoteValidation = ko.observable(false);
+    self.noteUpdate = function(){
+        self.showNoteValidation(false);
+    }
+
+
+    self._OwnerCID = ko.observable(data._OwnerCID);
+    self._OwnerName = ko.observable(data._OwnerName);
+    self._OwnerEmail = ko.observable(data._OwnerEmail);
+
+    self.newOwner = ko.observable();
+    self.ownerValidationMessage = ko.observable("You must select an owner for this Opportunity");
+    self.showOwnerValidation = ko.observable(false);
+
+
+    self.owners = ko.observableArray([]);
+
+    self.ownerChanged = function(){
+
+        self._OwnerCID(self.newOwner().Id());
+        self._OwnerName(self.newOwner().name());
+        self._OwnerEmail(self.newOwner().email());
+
+        self.showOwnerValidation(false);
+    }
+
+
+    self.saveOpportunity = function(){
+
+        var data = ko.toJS(self);
+
+        if( typeof (data.NextActionNotes) == "undefined"){
+            self.showNoteValidation(true);
+        }
+
+        if( typeof (data.newOwner) == "undefined"){
+            self.showOwnerValidation(true);
+        }
+
+        if(self.showNoteValidation() == false && self.showOwnerValidation() == false){
+
+
+            var postData = {
+                appname : self.context["appname"],
+                cid: self.context["cid"],
+                ContactID: data.ContactID,
+                OpportunityTitle: data.OpportunityTitle,
+                _CompanyID : data._CompanyID,
+                NextActionDate: data.NextActionDate.format("YYYY-MM-DD HH:mm:ss"),
+                NextActionNotes: data.NextActionNotes,
+                _OwnerCID: data._OwnerCID,
+                _OwnerName: data._OwnerName,
+                _OwnerEmail: data._OwnerEmail
+            };
+
+            var payload = {
+                url: "/prospects/opportunity",
+                method: "POST",
+                data: postData,
+                success: function(response) {
+                    console.log(response);
+                    if (response.success) {
+
+                        toastr.success("Opportunity Created!");
+                        $("#opportunityDetails").modal('hide');
+
+                    } else {
+                        toastr.error(response.error);
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    toastr.error(errorThrown);
+                    console.log(jqXHR);
+                }
+            };
+
+            $.ajax(payload);
+
+        }
+
+    }
+
+    $.get("/refermatter/owners/" + context["appname"] + "/" + parseInt(data._CompanyID) ,function(result){
+
+        if(result.success && result.data){
+
+            var mapped = $.map(result.data, function(o) {
+                var owner = new Owner(o);
+                return owner;
+
+            });
+
+            self.owners(mapped);
+
+        }
+
+    });
+
+
+
+}
+
 function Prospect(data){
 
     var self = this;
 
     self.Id = ko.observable(data.Id);
     self.Company  = ko.observable(data.Company); //  This is the "Client Company"
+    self.CompanyID  = ko.observable(data.CompanyID); //  This is the "Client Company"
     self.FirstName = ko.observable(data.FirstName);
     self.LastName = ko.observable(data.LastName);
     self.Email = ko.observable(data.Email);
@@ -217,14 +396,15 @@ function AppViewModel(context){
     var self = this;
 
     self.context = context;
-
     self.contacts = ko.observableArray([]);
     self.currentPage = ko.observable(1);
     self.itemsToGet = ko.observable(15);
     self.filterText = ko.observable("");
     self.filters = ko.observable("");
+    self.insidesales = ko.observable(false);
 
     self.selectedProspect = ko.observable();
+    self.opportunity = ko.observable();
     self.notes = ko.observableArray([]);
     self.notesLoadMessage = ko.observable("");
     self.initialLoad = ko.observable(true);
@@ -270,6 +450,21 @@ function AppViewModel(context){
     self.selectProspect = function(item){
         self.selectedProspect(item);
         self.getNotes(item);
+    }
+
+    self.createOpportunity = function(item){
+
+        var data = ko.toJS(item);
+
+        var opportunity = {
+            ContactID: data.Id,
+            OpportunityTitle: data._CompanyName,
+            NextActionDate: moment(),
+            _CompanyID : data.CompanyID
+        }
+
+        self.opportunity(new Opportunity(ko.toJS(opportunity), self.context));
+
     }
 
     self.getContacts = function(){
@@ -385,48 +580,58 @@ function AppViewModel(context){
 
     var initalLoad = function(){
 
-        var data = {
-            appname : self.context["appname"],
-            cid: self.context["cid"],
-            configid : self.context["config"]
-        };
+        if(self.context["config"]){
+            var data = {
+                appname : self.context["appname"],
+                cid: self.context["cid"],
+                configid : self.context["config"]
+            };
 
-        var payload = {
-            url: "/prospects/savedsearch",
-            method: "POST",
-            data: data,
-            success: function(response) {
+            var payload = {
+                url: "/prospects/savedsearch",
+                method: "POST",
+                data: data,
+                success: function(response) {
+
+                    if (response.success) {
+
+                        var mapped = $.map(response.data, function(item) {
+
+                            return new Prospect(item);
+                        });
+                        self.contacts(mapped);
+
+                    } else {
+                        toastr.error(response.error);
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    toastr.error(errorThrown);
+                    console.log(jqXHR);
+                }
+            };
+
+            $.ajax(payload);
+        } else {
+
+            self.insidesales(true);
+
+            $.get("/prospects/byid/" + self.context["appname"] + "/" + self.context["prospectid"], function(response){
 
                 if (response.success) {
 
-                    var mapped = $.map(response.data, function(item) {
-
-                        return new Prospect(item);
-                    });
-                    self.contacts(mapped);
-
-                    //ko.utils.arrayForEach(response.data, function(item){
-                    //
-                    //    $.get("/prospects/byid/" + self.context["appname"] + "/" + item.Id, function(prospect){
-                    //
-                    //        self.contacts.push(new Prospect(prospect.data));
-                    //
-                    //    });
-                    //
-                    //});
-
+                    self.contacts(new Prospect(response.data));
 
                 } else {
                     toastr.error(response.error);
                 }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                toastr.error(errorThrown);
-                console.log(jqXHR);
-            }
-        };
 
-        $.ajax(payload);
+            })
+
+
+        }
+
+
 
 
     }();

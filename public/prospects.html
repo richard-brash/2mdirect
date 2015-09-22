@@ -5,6 +5,7 @@
     <title></title>
     <link rel="stylesheet" href="stylesheets/bootstrap.min.css"/>
     <link rel="stylesheet" href="stylesheets/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="stylesheets/bootstrap-datetimepicker.css"/>
     <link rel="stylesheet" href="stylesheets/toastr.min.css"/>
     <link rel="stylesheet" href="stylesheets/style.css"/>
 
@@ -53,7 +54,12 @@
                         <img alt="" style="width: 152px; height: 32px" data-bind="attr: {src: flame}">
                     </div>
                     <div class="col-sm-6">
-                        <button class="btn btn-lg bg-primary" data-bind="click:$parent.selectProspect" data-toggle="modal" data-target="#companyDetails">View Details</button>
+                        <span data-bind="visible: !$parent.insidesales()">
+                            <button class="btn btn-lg bg-primary" data-bind="click:$parent.selectProspect" data-toggle="modal" data-target="#companyDetails">View Details</button>
+                        </span>
+                        <span data-bind="visible: $parent.insidesales">
+                            <button class="btn btn-lg bg-primary" data-bind="click:$parent.createOpportunity" data-toggle="modal" data-target="#opportunityDetails">Create Opportunity</button>
+                        </span>
                     </div>
 
                 </div>
@@ -83,6 +89,58 @@
             </div>
         </div>
     </div>
+
+    <!-- Opportunity Detail -->
+    <div class="modal fade" id="opportunityDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" data-bind="with:opportunity">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                    <span class="modal-title nameheader" data-bind="text: 'Create Opportunity for ' + OpportunityTitle()"/>
+
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-12">
+
+                                <div style="margin-bottom: 10px;"><label>Opportunity Title:</label>&nbsp;&nbsp;<span data-bind="text:OpportunityTitle"></span></div>
+                                <div style="margin-bottom: 10px;"><label>For Contact ID:</label>&nbsp;&nbsp;<span data-bind="text:ContactID"></span></div>
+                                <div style="margin-bottom: 10px;"><label>Client Company ID:</label>&nbsp;&nbsp;<span data-bind="text:_CompanyID"></span></div>
+
+                                <div style="margin-bottom: 10px;"><label>Next Action Date:</label>&nbsp;&nbsp;
+
+                                    <div class='date dateTimes'>
+                                        <input style="width: 75%;" type="text" class="form-control" data-bind="datepicker: NextActionDate" />
+                                    </div>
+
+                                </div>
+                                <div style="margin-bottom: 10px;"><label style="vertical-align: top;">Next Action Notes:</label>&nbsp;&nbsp;<textarea cols="40" rows="5" data-bind="value:NextActionNotes, , event:{keyup: noteUpdate}"></textarea>
+                                <div style="color: red;" data-bind="text:noteValidationMessage, visible: showNoteValidation"></div>
+                                </div>
+                                <div style="margin-bottom: 10px;">
+                                    <label>Owner:</label>&nbsp;&nbsp;<div style="color: red;" data-bind="text:ownerValidationMessage, visible: showOwnerValidation"></div>
+                                    <select class="form-control" data-bind="options: owners, optionsText: 'name', value: newOwner, optionsCaption: 'Assign Owner...', event:{ change: ownerChanged}"></select>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12 pull-left">
+                                <button type="button" data-bind="click:saveOpportunity"  class="btn btn-warning">Save Opportunity</button>
+                            </div>
+                        </div>
+                    </div>
+                    <hr/>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" data-dismiss="modal">Return to Prospect View</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Company Detail -->
     <div class="modal fade" id="companyDetails" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -150,10 +208,16 @@
 
 <script src="javascripts/jquery-2.1.4.min.js"></script>
 <script src="javascripts/bootstrap.min.js"></script>
+    <script src="javascripts/moment.js"></script>
+    <script src="javascripts/bootstrap-datepicker.js"></script>
 <script src="javascripts/knockout-3.3.0.js"></script>
-<script src="javascripts/moment.js"></script>
+
+
 <script src="javascripts/toastr.min.js"></script>
+
 <script src="javascripts/prospects_client.js"></script>
+
+
 </body>
 
 </html>
