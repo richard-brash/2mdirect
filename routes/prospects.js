@@ -127,7 +127,9 @@ router.post("/notes", function(req,res){
             "CreationDate",
             "CreationNotes",
             "ActionDescription"
-        ]
+        ],
+        "CreationDate",
+        false
     ],function(error, data){
 
         if(error){
