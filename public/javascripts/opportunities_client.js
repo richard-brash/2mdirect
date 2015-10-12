@@ -242,8 +242,6 @@ function Opportunity(data, parent){
 
                 var opportunity = result.data[0];
 
-                console.log(opportunity);
-
                 self.OpportunityTitle(opportunity.OpportunityTitle);
                 self.Id(opportunity.Id);
                 self.NextActionDate(opportunity.NextActionDate);
