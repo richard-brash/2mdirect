@@ -268,7 +268,7 @@ router.post("/afteraction", function(req,res){
 
 
                         var opportunity = {
-                            NextActionDate:(context.appname == "je230") ? new Date(details._DateOfNextAppointment.replace(/(\r\n|\n|\r)/gm,"")): details._NextAppointmentDate,
+                            NextActionDate:(context.appname == "je230") ? new Date(details._NextAppointmentDate4.replace(/(\r\n|\n|\r)/gm,"")): details._NextAppointmentDate,
                             NextActionNotes:details._NextSteps,
                             StageID:stage[0].Id,
                             _Reason:(details._SalesStageAppointment == "Lost") ? details._SalesStageLost : ""
