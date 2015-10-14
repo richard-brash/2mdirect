@@ -267,11 +267,45 @@ router.post("/afteraction", function(req,res){
                         var nextSteps = details._NextSteps;
 
 
+                        var nextappointmentdate = null;
+
+                        if(context.appname == "je230"){
+
+                            if( (details._NextAppointmentDate4 || typeof(details._NextAppointmentDate4) == "undefined") && details._SalesStageAppointment != "Lost"){
+                                var date = moment().add(1, 'months').format("YYYY-MM-DD");
+                                nextappointmentdate = new Date(date);
+                                nextSteps += "\n ***** THIS DATE IS NOT AN APPOINTMENT, IT IS A REMINDER TO KEEP THE OPPORTUNITY FRESH *****"
+                            } else {
+                                if(details._NextAppointmentDate4 && typeof(details._NextAppointmentDate4) != "undefined"){
+                                    nextappointmentdate = new Date(details._NextAppointmentDate4.replace(/(\r\n|\n|\r)/gm,""));
+                                }
+
+                            }
+
+
+                        } else {
+
+                            if( (details._NextAppointmentDate || typeof( details._NextAppointmentDate) == "undefined") && details._SalesStageAppointment != "Lost"){
+                                var date = moment().add(1, 'months').format("YYYY-MM-DD");
+                                nextappointmentdate = new Date(date);
+                                nextSteps += "\n ***** THIS DATE IS NOT AN APPOINTMENT, IT IS A REMINDER TO KEEP THE OPPORTUNITY FRESH *****"
+                            } else {
+                                nextappointmentdate = details._NextAppointmentDate;
+                            }
+
+                        }
+
+
+
                         var opportunity = {
-                            NextActionDate:(context.appname == "je230") ? new Date(details._NextAppointmentDate4.replace(/(\r\n|\n|\r)/gm,"")): details._NextAppointmentDate,
-                            NextActionNotes:details._NextSteps,
+                            NextActionNotes:nextSteps,
                             StageID:stage[0].Id,
                             _Reason:(details._SalesStageAppointment == "Lost") ? details._SalesStageLost : ""
+                        }
+
+                        if(nextappointmentdate)
+                        {
+                            opportunity.NextActionDate = nextappointmentdate
                         }
 
                         //  Update the opportunity record

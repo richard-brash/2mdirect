@@ -39,9 +39,7 @@ function Config(){
             UserId:1,
             customFields: ["_AnnualRevenue0", "_NextAppointmentDate"],
             opportunityFieldMapping:[
-
                 {NextAppointmentDate : "_NextAppointmentDate"}
-
             ],
             afterActionURL: "http://dilogr.com/app1/s/afteractionreport",
             TeamMemberTemplate: 3777,
@@ -56,6 +54,9 @@ function Config(){
             ApiKey:"78fe52c4c1c84254d80bebcaa45a5c4d",
             UserId:1,
             customFields: ["_AnnualRevenue", "_NextAppointmentDate4"],
+            opportunityFieldMapping:[
+                {NextAppointmentDate : "_NextAppointmentDate4"}
+            ],
             afterActionURL: " http://dilogr.com/app1/s/afteractionje230",
             TeamMemberTemplate: 3663,
             NewOwnerTemplate: 3661,
