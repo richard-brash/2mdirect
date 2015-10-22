@@ -35,7 +35,7 @@ span.nameheader {
 }
 
 table.notes{
-    width: 90%;
+    width: 80%;
     margin-bottom: 15px;
     padding: 5px;
 
@@ -64,6 +64,6 @@ table.notes th{
 }
 
 .modal-dialog {
-    width: 90%;
+    width: 75%;
 }
 

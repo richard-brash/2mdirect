@@ -362,11 +362,15 @@ function AppViewModel(context){
 
     self.updateOpportunity = function(item){
 
+
         var opportunity = ko.toJS(item);
+
+        console.log(opportunity);
+        console.log(context);
 
         $.get("/opportunity/afteractionul/" + self.context["appname"], function(data){
 
-            var url = data.afterActionURL + "?email=" + opportunity.Email + "&lastname=" + opportunity.LastName + "&firstname=" + opportunity.FirstName + "&opid=" + opportunity.Id;
+            var url = data.afterActionURL + "?email=" + opportunity.Email + "&lastname=" + opportunity.LastName + "&firstname=" + opportunity.FirstName + "&opid=" + opportunity.Id + "&recorderid=" + self.context["cid"];
 
             var win = window.open(url, '_blank');
             if(win){

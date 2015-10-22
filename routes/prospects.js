@@ -126,7 +126,8 @@ router.post("/notes", function(req,res){
             "UserID",
             "CreationDate",
             "CreationNotes",
-            "ActionDescription"
+            "ActionDescription",
+            "_NoteRecorder"
         ],
         "CreationDate",
         false
@@ -379,7 +380,7 @@ router.post("/savedsearch", function(req,res){
                             _UltimateParentName : reportData[i].Custom_UltimateParentName,
                             _NumberofEmployees : reportData[i].Custom_NumberofEmployees,
                             _YearEstablished : reportData[i].Custom_YearEstablished,
-                            _CompanyDescription : reportData[i].CompanyInfo,
+                            _CompanyDescription : reportData[i].Custom_CompanyDescription,
                             Score : reportData[i].ScoreId1,
                             LinkedIn: reportData[i].LinkedInSocialAccountName,
                             _NAICS : reportData[i].Custom_NAICS,

@@ -116,6 +116,7 @@ function Note(data){
     self.CreationDate = ko.observable(data.CreationDate);
     self.CreationNotes = ko.observable((data.CreationNotes) ? data.CreationNotes : "[No Notes]" );
     self.ActionDescription = ko.observable(data.ActionDescription);
+    self._NoteRecorder = ko.observable(data._NoteRecorder);
 
     self.showMe = ko.observable(true);
 
@@ -180,7 +181,14 @@ function Note(data){
                 if(result.success){
                     self.UserName(result.data.FirstName + " " + result.data.LastName);
                 } else {
-                    self.UserName("Marketing");
+
+                    if(self._NoteRecorder != ""){
+                        self.UserName(self._NoteRecorder);
+                    } else {
+                        self.UserName("Marketing");
+                    }
+
+
                 }
 
             });
@@ -551,7 +559,6 @@ function AppViewModel(context){
                 if (response.success) {
 
                     var mapped = $.map(response.data, function(item) {
-
                         var note = new Note(item);
                         note.init(self.context["appname"]);
                         return note;

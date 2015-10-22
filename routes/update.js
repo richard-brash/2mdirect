@@ -241,7 +241,8 @@ router.post("/afteraction", function(req,res){
             "_SalesStageAppointment",
             "_SalesStageLost",
             "_NextSteps",
-            "_OpportunityId"
+            "_OpportunityId",
+            "_RecorderId"
         ];
 
         var fields = askFields.concat(customFields);
@@ -308,33 +309,46 @@ router.post("/afteraction", function(req,res){
                             opportunity.NextActionDate = nextappointmentdate
                         }
 
-                        //  Update the opportunity record
-                        isclient.Caller(context.appname, "DataService.update",["Lead", details._OpportunityId, opportunity],function(error, opupdate){
+                        isclient.Caller(context.appname, "ContactService.load", [details._RecorderId,["FirstName", "LastName"]], function(error, recorder){
 
-                            if(!error && opupdate){
+                            var recordername = "";
 
-                                //  Finally, add the note to the contact record
-                                var note = {
-                                    ContactId : context.cid,
-                                    ActionDescription : "After Action Note",
-                                    ActionType : "Appointment",
-                                    CreationNotes: details._MeetingNotes
-
-                            };
-
-                                isclient.Caller(context.appname, "DataService.add", ["ContactAction", note], function(error, noteadd){
-                                    if(!error && noteadd){
-                                        res.json(error);
-                                    } else{
-                                        res.json({});
-                                    }
-                                });
-
-                            } else {
-                                res.json(error);
+                            if(!error && recorder){
+                                recordername = recorder.FirstName + " " + recorder.LastName;
                             }
 
-                        });
+                            isclient.Caller(context.appname, "DataService.update",["Lead", details._OpportunityId, opportunity],function(error, opupdate){
+
+                                if(!error && opupdate){
+
+                                    //  Finally, add the note to the contact record
+                                    var note = {
+                                        ContactId : context.cid,
+                                        ActionDescription : "After Action Note",
+                                        ActionType : "Appointment",
+                                        CreationNotes: details._MeetingNotes,
+                                        _NoteRecorder: recordername
+
+                                    };
+
+                                    isclient.Caller(context.appname, "DataService.add", ["ContactAction", note], function(error, noteadd){
+                                        if(!error && noteadd){
+                                            res.json(error);
+                                        } else{
+                                            res.json({});
+                                        }
+                                    });
+
+                                } else {
+                                    res.json(error);
+                                }
+
+                            });
+
+                        })
+
+                        //  Update the opportunity record
+
 
 
                     } else {
