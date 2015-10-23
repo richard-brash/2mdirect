@@ -50,6 +50,7 @@ $(document).ready(function(){
 })
 
 function Note(data){
+
     var self = this;
     self.Id = ko.observable(data.Id);
     self.UserID = ko.observable(data.UserID);
@@ -57,14 +58,15 @@ function Note(data){
     self.CreationDate = ko.observable(data.CreationDate);
     self.CreationNotes = ko.observable((data.CreationNotes) ? data.CreationNotes : "[No Notes]" );
     self.ActionDescription = ko.observable(data.ActionDescription);
+    self._NoteRecorder = ko.observable(data._NoteRecorder);
 
     self.showMe = ko.observable(true);
 
     self.init = function(appname){
 
-        if(self.CreationNotes() == "[No Notes]"){
-            self.showMe(false);
-        }
+        //if(self.CreationNotes() == "[No Notes]"){
+        //    self.showMe(false);
+        //}
 
         if(self.ActionDescription().indexOf("turboDial") != -1){
 
@@ -118,10 +120,17 @@ function Note(data){
         if(self.showMe()){
             $.get("infusionsoftuser/" + appname + "/" + parseInt(self.UserID()) ,function(result){
 
-                if(result.success){
+                if(result.success && result.data != null){
                     self.UserName(result.data.FirstName + " " + result.data.LastName);
                 } else {
-                    self.UserName("Marketing");
+
+                    if(typeof(self._NoteRecorder()) != "undefined" && self._NoteRecorder() != ""){
+                        self.UserName(self._NoteRecorder());
+                    } else {
+                        self.UserName("Marketing");
+                    }
+
+
                 }
 
             });
@@ -227,7 +236,7 @@ function Opportunity(data, parent){
 
     self.prospect = ko.observable( new Prospect(data));
 
-    self.initfromsearch = function(appname, cid){
+    self.initfromsearch = function(appname, cid, stagefilter){
 
         self.ContactID(cid);
 
@@ -236,27 +245,39 @@ function Opportunity(data, parent){
 
             if(result.success && result.data && result.data.length > 0){
 
-                parent.foundOpportunityData(true);
-
-                self.founddata(true);
-
                 var opportunity = result.data[0];
 
-                self.OpportunityTitle(opportunity.OpportunityTitle);
-                self.Id(opportunity.Id);
-                self.NextActionDate(opportunity.NextActionDate);
-                self.NextActionNotes(opportunity.NextActionNotes);
-                self.DateCreated(opportunity.DateCreated);
-                self.OpportunityOwner(opportunity._OwnerName);
-                self.OpportunityOwnerEmail(opportunity._OwnerEmail);
-
-                $.get("opportunity/stage/" + appname + "/" + parseInt(opportunity.StageID), function(stage){
-
-                    if(stage.success && stage.data){
-                        self.StageName(stage.data.StageName);
+                if(typeof(stagefilter) == 'undefined'){
+                    parent.foundOpportunityData(true);
+                    self.founddata(true);
+                } else {
+                    if(stagefilter.Id == opportunity.StageID){
+                        parent.foundOpportunityData(true);
+                        self.founddata(true);
+                    } else {
+                        parent.foundOpportunityData(false);
+                        self.founddata(false);
                     }
+                }
 
-                })
+                if(self.founddata()){
+                    self.OpportunityTitle(opportunity.OpportunityTitle);
+                    self.Id(opportunity.Id);
+                    self.NextActionDate(opportunity.NextActionDate);
+                    self.NextActionNotes(opportunity.NextActionNotes);
+                    self.DateCreated(opportunity.DateCreated);
+                    self.OpportunityOwner(opportunity._OwnerName);
+                    self.OpportunityOwnerEmail(opportunity._OwnerEmail);
+
+                    $.get("opportunity/stage/" + appname + "/" + parseInt(opportunity.StageID), function(stage){
+
+                        if(stage.success && stage.data){
+                            self.StageName(stage.data.StageName);
+                        }
+
+                    })
+
+                }
 
 
             }
@@ -310,6 +331,18 @@ function AppViewModel(context){
     self.itemsToGet = ko.observable(15);
     self.filterText = ko.observable("");
     self.filters = ko.observable("");
+
+    self.filterStage = ko.observable();
+    self.allStages = ko.observableArray([]);
+
+    $.get("/opportunity/all/stages/" + self.context["appname"],function(stages){
+
+        if(stages.success){
+
+            self.allStages(stages.data);
+        }
+
+    })
 
     self.selectedOpportunity = ko.observable();
     self.foundOpportunityData = ko.observable(false);
@@ -365,9 +398,6 @@ function AppViewModel(context){
 
         var opportunity = ko.toJS(item);
 
-        console.log(opportunity);
-        console.log(context);
-
         $.get("/opportunity/afteractionul/" + self.context["appname"], function(data){
 
             var url = data.afterActionURL + "?email=" + opportunity.Email + "&lastname=" + opportunity.LastName + "&firstname=" + opportunity.FirstName + "&opid=" + opportunity.Id + "&recorderid=" + self.context["cid"];
@@ -391,12 +421,17 @@ function AppViewModel(context){
         var firstName = filters[0];
         var lastName = (filters.length > 1) ? filters[1] : "";
 
-        self.filters(ko.toJSON([{ field: "FirstName", value: firstName }, { field: "LastName", value: lastName }]));
+        if(firstName == "" && lastName == ""){
+            self.initalLoad();
+        } else {
+            self.filters(ko.toJSON([{ field: "FirstName", value: firstName }, { field: "LastName", value: lastName }]));
+            self.doSearch();
+        }
 
-        self.doSearch();
     };
 
     self.getCompanies = function(){
+
 
         self.filters(ko.toJSON([{ field: "_CompanyName", value: self.filterText() }]));
 
@@ -431,7 +466,7 @@ function AppViewModel(context){
                     var mapped = $.map(response.data, function(item) {
 
                         var opportunity = new Opportunity(item, self);
-                        opportunity.initfromsearch(self.context["appname"], item.Id);
+                        opportunity.initfromsearch(self.context["appname"], item.Id, ko.toJS(self.filterStage));
                         return opportunity;
 
                     });
@@ -499,11 +534,12 @@ function AppViewModel(context){
 
     }
 
-    var initalLoad = function(){
+    self.initalLoad = function(){
 
         var data = {
             appname : self.context["appname"],
-            cid: self.context["cid"]
+            cid: self.context["cid"],
+            filterStage:ko.toJSON(self.filterStage)
         };
 
         var payload = {
@@ -538,9 +574,9 @@ function AppViewModel(context){
         $.ajax(payload);
 
 
-    }();
+    };
 
-
+    self.initalLoad();
 
 
 }

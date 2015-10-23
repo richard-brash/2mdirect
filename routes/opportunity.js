@@ -140,6 +140,19 @@ router.get("/contact/:appname/:cid", function(req,res){
 
 });
 
+router.get("/all/stages/:appname", function(req,res){
+
+    var query = {StageName: "%"};
+    isclient.Caller(req.appname, "DataService.query", ["Stage", 1000, 0, query,["StageName","Id"]], function(error, data){
+
+        if(error || !data){
+            res.json(rbmJSONResponse.errorResponse(error));
+        }else{
+            res.json(rbmJSONResponse.successResponse(data));
+        }
+    });
+
+});
 
 router.get("/stage/:appname/:stageid", function(req,res){
 

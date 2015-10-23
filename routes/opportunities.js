@@ -57,6 +57,11 @@ router.post("/list", function(req,res){
 
     query["_CompanyID"] = req.user.CompanyID;
 
+    if(context.filterStage){
+        filter = JSON.parse(context.filterStage);
+        query["StageID"] = filter.Id;
+    }
+
     isclient.Caller(context.appname, "DataService.query", ["Lead", 1000, 0, query,[
         "OpportunityTitle",
         "Id",

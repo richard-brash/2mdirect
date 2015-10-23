@@ -14,8 +14,9 @@
     <div class="container">
 
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-sm-8">
                 <div class="input-group">
+
                     <span class="input-group-addon glyphicon glyphicon-search" aria-hidden="true"></span>
                     <input type="text" class="form-control" placeholder="Search for..." aria-describedby="basic-addon1" data-bind="value:filterText, valueUpdate:'keypress'">
                     <span class="input-group-btn">
@@ -25,6 +26,8 @@
                             <li><a data-bind="click:getCompanies">Company</a></li>
                         </ul>
                     </span>
+                    <select class="form-control" data-bind="options: allStages, value: filterStage, optionsText: 'StageName', optionsCaption: 'No stage filter'"></select>
+
                 </div>
             </div>
         </div>
@@ -74,7 +77,7 @@
                 <div class="modal-body">
                     <div class="container" data-bind="with: prospect">
                         <div class="row">
-                            <div class="col-sm-12">
+                            <div class="col-sm-7 col-sm-offset-1">
                                 <div><label>Entity Type:</label> <span data-bind="text:_EntityType"></span></div>
                                 <div><label>Parent Name:</label> <span data-bind="text:_ParentName"></span></div>
                                 <div><label>Ultimate Parent Name:</label> <span data-bind="text:_UltimateParentName"></span></div>
@@ -104,7 +107,7 @@
                                     <td class="col-sm-3"><div data-bind="text: UserName"></div></td>
                                     <td class="col-sm-7">
                                         <div class="alert alert-info" data-bind="text:ActionDescription"></div>
-                                        <div data-bind="text: CreationNotes"></div>
+                                        <div data-bind="html: CreationNotes"></div>
                                     </td>
                                 </tr>
                                 </tbody>

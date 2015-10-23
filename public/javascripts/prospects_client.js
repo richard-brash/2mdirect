@@ -109,6 +109,7 @@ $(document).ready(function(){
 
 
 function Note(data){
+
     var self = this;
     self.Id = ko.observable(data.Id);
     self.UserID = ko.observable(data.UserID);
@@ -122,9 +123,9 @@ function Note(data){
 
     self.init = function(appname){
 
-        if(self.CreationNotes() == "[No Notes]"){
-            self.showMe(false);
-        }
+        //if(self.CreationNotes() == "[No Notes]"){
+        //    self.showMe(false);
+        //}
 
         if(self.ActionDescription().indexOf("turboDial") != -1){
 
@@ -178,12 +179,12 @@ function Note(data){
         if(self.showMe()){
             $.get("infusionsoftuser/" + appname + "/" + parseInt(self.UserID()) ,function(result){
 
-                if(result.success){
+                if(result.success && result.data != null){
                     self.UserName(result.data.FirstName + " " + result.data.LastName);
                 } else {
 
-                    if(self._NoteRecorder != ""){
-                        self.UserName(self._NoteRecorder);
+                    if(typeof(self._NoteRecorder()) != "undefined" && self._NoteRecorder() != ""){
+                        self.UserName(self._NoteRecorder());
                     } else {
                         self.UserName("Marketing");
                     }
