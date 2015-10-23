@@ -82,7 +82,7 @@ router.get("/notifyappointments/:appname/:rbmkey", function(req,res){
                 isclient.Caller(req.appname, "ContactService.load",[opportunity.ContactID,["Email", "FirstName", "LastName", "_CompanyName", "CompanyID"]],function(error, contact){
 
                     var afterActionURL = Config.ISConfig(req.appname).afterActionURL;
-                    var url = afterActionURL + "?email=" + contact.Email + "&lastname=" + contact.LastName + "&firstname=" + contact.FirstName + "&opid=" + opportunity.Id;
+                    var url = afterActionURL + "?email=" + contact.Email + "&lastname=" + contact.LastName + "&firstname=" + contact.FirstName + "&opid=" + opportunity.Id + "&recorderid=" + opportunity._OwnerCID;
 
                     //  Set up the email view
                     var view = {
@@ -168,7 +168,7 @@ router.post("/notifyappointments", function(req,res){
                 isclient.Caller(context.appname, "ContactService.load",[opportunity.ContactID,["Email", "FirstName", "LastName", "_CompanyName", "CompanyID"]],function(error, contact){
 
                     var afterActionURL = Config.ISConfig(context.appname).afterActionURL;
-                    var url = afterActionURL + "?email=" + contact.Email + "&lastname=" + contact.LastName + "&firstname=" + contact.FirstName + "&opid=" + opportunity.Id;
+                    var url = afterActionURL + "?email=" + contact.Email + "&lastname=" + contact.LastName + "&firstname=" + contact.FirstName + "&opid=" + opportunity.Id + "&recorderid=" + opportunity._OwnerCID;
 
                     //  Set up the email view
                     var view = {
