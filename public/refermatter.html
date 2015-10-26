@@ -63,19 +63,29 @@
                             </div>
 
                             <div class="col-sm-2"></div>
-                            <div class="col-sm-6">
+                            <div class="col-sm-10">
                                 <label>Team Members:</label>
                                 <div class="row">
-                                    <div class="col-sm-5">
+                                    <div class="col-md-5">
                                         <label>Pick List:</label>
                                         <ul data-bind="foreach: owners">
-                                            <li style="text-decoration: underline; cursor: hand; cursor: pointer;" data-bind="text: name, click:$parent.addmember"></li>
+                                            <li>
+                                                <span style="text-decoration: underline; cursor: hand; cursor: pointer;" data-bind="text: name, click:$parent.addmember"></span>
+                                                <div class="glyphicon glyphicon-info-sign" aria-hidden="true" data-bind="click:detailToggle"></div>
+                                                    <div data-bind="visible:showDetail, text: detail">
+                                                    </div>
+                                            </li>
                                         </ul>
                                     </div>
-                                    <div class="col-sm-5">
+                                    <div class="col-md-5">
                                         <label>Members Selected:</label>
                                         <ul data-bind="foreach: selectedOpportunity().TeamMembers">
-                                            <li style="text-decoration: underline; cursor: hand; cursor: pointer;" data-bind="text: name, click:$parent.removemember"></li>
+                                            <li>
+                                                <span style="text-decoration: underline; cursor: hand; cursor: pointer;" data-bind="text: name, click:$parent.removemember"></span>
+                                                <div class="glyphicon glyphicon-info-sign" aria-hidden="true" data-bind="click:detailToggle"></div>
+                                                <div data-bind="visible:showDetail, text: detail">
+                                                </div>
+                                            </li>
                                         </ul>
                                     </div>
                                 </div>
