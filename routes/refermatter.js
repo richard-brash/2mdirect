@@ -35,7 +35,7 @@ router.get("/owners/:appname/:cid", function(req,res){
         ContactType: "Team Member"
     }
 
-    isclient.Caller(req.appname, "DataService.query", ["Contact", 1000, 0, query,["FirstName", "LastName", "Email","Id"]], function(error, teammembers){
+    isclient.Caller(req.appname, "DataService.query", ["Contact", 1000, 0, query,["FirstName", "LastName", "Email","Id", "Phone1", "Title", "_CompanyName"]], function(error, teammembers){
 
         if(error || !teammembers){
             res.json(rbmJSONResponse.errorResponse(error));

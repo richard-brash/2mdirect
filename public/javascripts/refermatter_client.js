@@ -55,8 +55,27 @@ function Owner(data){
 
     self.name = ko.observable((typeof(data.FirstName) == "undefined") ? data.name : data.FirstName + " " + data.LastName);
     self.email = ko.observable((typeof(data.Email) == "undefined") ? data.email : data.Email);
+    self.Phone1 = ko.observable(data.Phone1);
+    self.Title = ko.observable(data.Title);
+    self._CompanyName = ko.observable(data._CompanyName);
     self.Id = ko.observable(data.Id);
     self.added = ko.observable(false);
+
+    self.detail = ko.computed(function(){
+
+        var company = (typeof(self._CompanyName()) == "undefined") ? "" : self._CompanyName();
+        var title = (typeof(self.Title()) == "undefined") ? "" : self.Title();
+        var email = (typeof(self.email()) == "undefined") ? "" : self.email();
+        var phone = (typeof(self.Phone1()) == "undefined") ? "" : self.Phone1();
+
+       return  company + " " + title + " (" + email + " - " + phone + ")";
+    });
+
+
+    self.showDetail = ko.observable(false);
+    self.detailToggle = function(){
+        self.showDetail(!self.showDetail());
+    }
 
 }
 
